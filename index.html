@@ -1,40 +1,40 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Qmss in R by jgabry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>Qmss in R by jgabry</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+    <header>
+      <div class="inner">
         <h1>Qmss in R</h1>
-        <p>Companion R package and code for Greg Eirich&#39;s QMSS courses at Columbia University</p>
+        <h2>Companion R package and code for Greg Eirich&#39;s QMSS courses at Columbia University</h2>
+        <a href="https://github.com/jgabry/QMSS_in_R" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-        <p class="view"><a href="https://github.com/jgabry/QMSS_in_R">View the Project on GitHub <small>jgabry/QMSS_in_R</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/jgabry/QMSS_in_R/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/jgabry/QMSS_in_R/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/jgabry/QMSS_in_R">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
 <a name="qmss_in_r-package-code-and-data" class="anchor" href="#qmss_in_r-package-code-and-data"><span class="octicon octicon-link"></span></a>QMSS_in_R: package, code and data</h1>
 
 <p>This repository contains the R package, code, and data for Greg Eirich's QMSS courses at Columbia University. Below you will find instructions for installing the QMSS package and dowloading the data and R code for the courses.</p>
 
-<h1>
-<a name="installing-the-qmss-r-package" class="anchor" href="#installing-the-qmss-r-package"><span class="octicon octicon-link"></span></a>Installing the QMSS R package</h1>
+<hr><h3>
+<a name="installing--loading-the-qmss-r-package" class="anchor" href="#installing--loading-the-qmss-r-package"><span class="octicon octicon-link"></span></a>Installing &amp; loading the QMSS R package</h3>
 
 <p>Run the following three lines of code in R to download the "devtools" package, load the "devtools" package, and use the install_github function to install the QMSS package:</p>
 
@@ -44,29 +44,37 @@
 
 <p><code>install_github("jgabry/QMSS_in_R/Package/QMSS")</code></p>
 
-<h1>
-<a name="loading-the-qmss-r-package-after-installation" class="anchor" href="#loading-the-qmss-r-package-after-installation"><span class="octicon octicon-link"></span></a>Loading the QMSS R package after installation</h1>
+<p>After installation has completed run <code>library(QMSS)</code> to load the package. Run <code>help(package="QMSS")</code> to open the R documentation for the package.</p>
 
-<p>In R run <code>library(QMSS)</code>. To check that the package loaded run <code>help(package="QMSS")</code>. This should open the R Documentation for the package.</p>
+<hr><h3>
+<a name="accessing-the-r-code-for-your-class" class="anchor" href="#accessing-the-r-code-for-your-class"><span class="octicon octicon-link"></span></a>Accessing the R code for your class</h3>
 
-<h1>
-<a name="accessing-the-r-code" class="anchor" href="#accessing-the-r-code"><span class="octicon octicon-link"></span></a>Accessing the R code</h1>
+<ul>
+<li><p>For <strong>Quantitative Analytic Techniques</strong> click <a href="https://github.com/jgabry/QMSS_in_R/tree/master/Code/Quantitative%20Analytic%20Techniques">here</a>. </p></li>
+<li><p>For <strong>Regression Analysis of Temporal Processes</strong> click <a href="https://github.com/jgabry/QMSS_in_R/tree/master/Code/Regression%20Analysis%20of%20Temporal%20Processes">here</a>.</p></li>
+</ul><hr><h3>
+<a name="downloading-the-data" class="anchor" href="#downloading-the-data"><span class="octicon octicon-link"></span></a>Downloading the data</h3>
 
-<p>For the Quantitative Analytics Techniques click <a href="https://github.com/jgabry/QMSS_in_R/tree/master/Code/Quantitative%20Analytic%20Techniques">here</a>. </p>
+<p>Click <a href="https://github.com/jgabry/QMSS_in_R/blob/master/Data.zip">here</a> and then in the new window click on "<strong>View Raw</strong>". </p>
+        </section>
 
-<p>For Regression Analysis of Temporal Processes click <a href="https://github.com/jgabry/QMSS_in_R/tree/master/Code/Regression%20Analysis%20of%20Temporal%20Processes">here</a>.</p>
+        <aside id="sidebar">
+          <a href="https://github.com/jgabry/QMSS_in_R/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/jgabry/QMSS_in_R/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
 
-<h1>
-<a name="downloading-the-data" class="anchor" href="#downloading-the-data"><span class="octicon octicon-link"></span></a>Downloading the data</h1>
+          <p class="repo-owner"><a href="https://github.com/jgabry/QMSS_in_R"></a> is maintained by <a href="https://github.com/jgabry">jgabry</a>.</p>
 
-<p>Click <a href="https://github.com/jgabry/QMSS_in_R/blob/master/Data.zip">here</a> and then in the new window click on "View Raw". </p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/jgabry">jgabry</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+  
   </body>
 </html>
