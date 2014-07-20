@@ -12,5 +12,5 @@ install.packages("devtools", dependencies = TRUE)
 
 library(devtools)
 
-install_github("jgabry/QMSS/Package")
+install_github("jgabry/QMSS_in_R/Package/QMSS")
 
