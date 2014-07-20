@@ -11,7 +11,7 @@ This repository contains the R package, code, and data for Greg Eirich's QMSS co
 Installing the QMSS package
 =======
 
-While connected to the internet run the following three lines of code in R to download the "devtools" package, load the "devtools" package, and use the install_github function to install the QMSS package. 
+While connected to the internet run the following three lines of code in R to download the "devtools" package, load the "devtools" package, and use the install_github function to install the QMSS package:
 
  
 install.packages("devtools", dependencies = TRUE)
@@ -20,3 +20,7 @@ library(devtools)
 
 install_github("jgabry/QMSS_in_R/Package/QMSS")
 
+
+
+Accessing the R code for Greg Eirich's QMSS courses
+=======
