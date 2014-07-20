@@ -11,8 +11,8 @@
 # Setup -------------------------------------------------------------------
 # _________________________________________________________________________
 
-# Set working directory
-setwd("/Users/jgabry/Desktop/COLUMBIA/Stuff_for_Greg")
+# set working directory (replace text inside quotes with path to the desired directory)
+setwd("INSERT PATH TO DIRECTORY") 
 
 # Load packages
 library(QMSS)
