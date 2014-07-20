@@ -20,7 +20,7 @@ Run the following three lines of code in R to download the "devtools" package, l
 Loading the QMSS R package after installation
 =======
 
-In R run `library(QMSS) `. To check that the package loaded run `help(package="QMSS")`. This should open the R Documentation for the QMSS package.
+In R run `library(QMSS) `. To open the R documentation for the package run `help(package="QMSS")`. 
 
 
 
