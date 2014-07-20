@@ -19,12 +19,14 @@ install_github("jgabry/QMSS_in_R/Package/QMSS")
 
 
 
-Accessing the R code for Greg Eirich's QMSS courses
+Accessing the R code
 =======
 
 In the QMSS_in_R repository open the "Code" folder and click on the name of your course. 
 
 
-Accessing the data for Greg Eirich's QMSS courses
+Downloading the data
 =======
+
+In the QMSS_in_R repository click on "Data.zip" and then "View Raw". 
 
