@@ -29,4 +29,3 @@ Downloading the data
 =======
 
 In the QMSS_in_R repository click on "Data.zip" and then "View Raw". 
-
