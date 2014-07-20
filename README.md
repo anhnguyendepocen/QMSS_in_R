@@ -1,4 +1,4 @@
-QMSS_in_R: R package, code and data
+QMSS_in_R: package, code and data
 ====
 
 This repository contains the R package, code, and data for Greg Eirich's QMSS courses at Columbia University. Below you will find instructions for installing the QMSS package and dowloading the data and R code for the courses.  
@@ -21,3 +21,10 @@ install_github("jgabry/QMSS_in_R/Package/QMSS")
 
 Accessing the R code for Greg Eirich's QMSS courses
 =======
+
+In the QMSS_in_R repository open the "Code" folder and click on the name of your course. 
+
+
+Accessing the data for Greg Eirich's QMSS courses
+=======
+
