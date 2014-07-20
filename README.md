@@ -9,4 +9,4 @@ install.packages("devtools", dependencies = TRUE)
 
 library(devtools)
 
-install_github("jgabry/QMSS/package")
+install_github("jgabry/QMSS/Package")
