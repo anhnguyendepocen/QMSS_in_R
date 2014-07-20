@@ -20,11 +20,11 @@ Run the following three lines of code in R to download the "devtools" package, l
 Loading the QMSS R package after installation
 =======
 
-In R run `library(QMSS) `. To check that the package loaded run `help(package="QMSS")`. This should open the R Documentation for the package.
+In R run `library(QMSS) `. To check that the package loaded run `help(package="QMSS")`. This should open the R Documentation for the QMSS package.
 
 
 
-Accessing the R code
+Accessing the R code for your class
 =======
 
 In the QMSS_in_R repository open the "Code" folder and click on the name of your course. 
