@@ -63,9 +63,9 @@ summary(fd.satfin)
 
 # take only obs for individuals without missingness on "n.satfin" and "realinc10k" for
 # both waves 1 and 2 and drop all obs from panelwave 3 (for demonstration purposes only)
-good1 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==1)])
-good2 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==2)])
-temp <- subset(pd.sub, idnum %in% good1 & idnum %in% good2 & panelwave < 3)
+good_ids1 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==1)])
+good_ids2 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==2)])
+temp <- subset(pd.sub, idnum %in% good_ids1 & idnum %in% good_ids2 & panelwave < 3)
 
 ### First differences ###
 fd.satfin2 <- plm(n.satfin ~ realinc10k,
