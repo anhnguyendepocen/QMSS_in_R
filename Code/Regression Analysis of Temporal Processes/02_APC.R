@@ -27,7 +27,7 @@ load("GSS.RData")
 # Making categories of age, period, cohort --------------------------------
 # _________________________________________________________________________
 
-sub <- GSS[, c("natcrime", "age", "year", "cohort")]
+sub <- GSS[, c("natcrime", "age", "year", "cohort", "sex")]
 sub$n.natcrime <- ReverseThis(sub$natcrime)
 sub <- na.omit(sub)
 

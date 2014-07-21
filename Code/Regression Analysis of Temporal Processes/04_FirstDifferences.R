@@ -4,7 +4,7 @@
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/19/2014
+# Last Edited: 07/21/2014
 
 
 # Setup -------------------------------------------------------------------
@@ -33,8 +33,8 @@ pd <- arrange(pd,idnum,panelwave) # equivalent to pd <- pd[with(pd, order(idnum,
 
 # make recoded version of "divlaw" variable called "divorce.easier"
 pd$divorce.easier <- mapvalues(pd$divlaw,
-                                from = 1:3,
-                                to = c(3,1,2))
+                               from = 1:3,
+                               to = c(3,1,2))
 
 # quick (crude) check that recode worked (look at first 20 rows)
 with(pd, table(divlaw, divorce.easier))
@@ -52,7 +52,7 @@ summary(lm.divorce)
 
 # Add some control variables
 divorce2.formula <- (divorce.easier ~ divorced + I(log(realinc)) + educ + 
-                    as.factor(race) + as.factor(sex) + age)
+                       as.factor(race) + as.factor(sex) + age)
 lm.divorce2 <- lm(divorce2.formula, data = pd)
 summary(lm.divorce2)
 
@@ -76,12 +76,12 @@ summary(lm.divorce3) # should be same as lm.divorce
 
 # calculate degrees of freedom adjustment
 row.ids <- as.numeric(rownames(model.frame(lm.divorce3)))
-  # 1. get number of clusters (omitting individuals with missingness on "divorce.easier" and/or "divorced")
+# 1. get number of clusters (omitting individuals with missingness on "divorce.easier" and/or "divorced")
 n <- length(unique(pd.sub$idnum[row.ids]))
 n <- with(pd.sub, length(unique(idnum[row.ids])))
-  # 2. get number of observations (again omitting the same individuals with missingness)
+# 2. get number of observations (again omitting the same individuals with missingness)
 N <- length(row.ids)
-  # 3. compute degrees of freedom
+# 3. compute degrees of freedom
 df <- (n/(n - 1)) * (N - 1)/lm.divorce3$df.residual
 # retest coefficients using coeftest() from lmtest package
 coeftest(lm.divorce3, vcov = df*vcovHC(lm.divorce3, type = "HC0", cluster = "group"))
@@ -119,7 +119,7 @@ Adj.R2 <- c(summary(plm.divorce)$r.squared[2],
             summary(lm.divorce)$adj.r.squared) 
 names(Adj.R2) <- c("FD", "OLS")
 round(Adj.R2, 4)
-            
+
 
 ### Add control variables ###
 
@@ -148,7 +148,7 @@ pd.sub$race3 <- pd.sub$race==3
 
 
 # create first-differenced variables and add them to our subset of the data
-  # the QMSS package has a function firstD for compute first differences
+# the QMSS package has a function firstD for compute first differences
 pd.sub <- ddply(pd.sub, # the dataset
                 "idnum", # split the data by "idnum" variable 
                 mutate, # funtion to apply to each "idnum" subset (mutate tells ddply that the next arguments will be new variables (usually created as functions of existing variables)
@@ -219,16 +219,14 @@ with(subset(pd.sub, d.divorced!=0),
 
 
 
-
-
 # Means of d.divorce.easier by level of d.divorced
 with(pd.sub, by(d.divorce.easier, d.divorced, mean, na.rm=T)) 
 
 ### Re-run model on sub-groups ###
 # lower-educated people
 plm.loweduc <- plm(d.divorce.easier ~ d.divorced, 
-                     model = "pooling", 
-                     data = subset(pd.sub, pd$degree<3))
+                   model = "pooling", 
+                   data = subset(pd.sub, pd$degree<3))
 # retest with clustered se
 clusterSE(plm.loweduc, "idnum", subset(pd.sub, pd$degree<3))
 

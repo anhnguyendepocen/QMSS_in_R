@@ -87,24 +87,28 @@ load("APC.RData")
 
 # overall natcrime trend
 g_year
-g_year + ylim(2.45, 2.75)
+(g_year <- g_year + ylim(2.45, 2.75) 
+ + theme(panel.background = element_rect(fill = "gray49", colour = 'white'))) 
 
 # add fitted line
-g_year + stat_smooth(method = lm) + ylim(2.45, 2.75)
+(g_year <- g_year + stat_smooth(method = lm, se = FALSE, color = "maroon", lty = 2, lwd = 1.25))
 
-# or just view points and line
-ggplot(by.year, aes(x=year, y=NATCRIME)) + geom_point(color="maroon", size=3) + stat_smooth(method=lm, color="navyblue")
-
+# or just view points and fitted line
+(ggplot(by.year, aes(x = year, y = NATCRIME)) + geom_point(color = "skyblue", size = 3) 
+ + stat_smooth(method = lm, se = FALSE, color = "maroon", lty = 2, lwd = 1.25)
+ + theme(panel.background = element_rect(fill = "gray49", colour = 'white'))
+ + ylim(2.45, 2.75) )
+ 
 
 # We can test for the need for higher-order terms
 lm.natcrime_test <- lm(n.natcrime ~ year, data = sub)
 summary(lm.natcrime_test)
-resettest(lm.natcrime_test, power = 2:3) # Ramsey RESET test
+resettest(lm.natcrime_test, power = 2:4) # Ramsey RESET test
 
 ### Quadratics and cubics ###
 
 # Add a quadradic term
-lm.natcrime_quad <- update(lm.natcrime3, ~ . + I(year^2))
+lm.natcrime_quad <- update(lm.natcrime_test, ~ . + I(year^2))
 summary(lm.natcrime_quad)
 round(coef(lm.natcrime_quad), 3)
 
@@ -147,11 +151,11 @@ g_period + ylab("")
 
 ### Splines ###
 
-# install.packages("rms")
-library(rms) # we'll use lsp() function linear splines
+# rms package has lsp function for linear splines
+
 # use 1993 as the year separating 2 linear trends 
 lm.natcrime_sp1 <- lm(n.natcrime ~ lsp(year, 1993), data = sub)
-summary(lm.natcrime_sp)
+summary(lm.natcrime_sp1)
 
 # similar to running 2 models (before & after)
 lm(n.natcrime ~ year, data = sub, year <= 1993)
@@ -163,10 +167,80 @@ plot(by.year, pch = 19, col = "maroon", ylab = "", bty = "l")
 points(sub[,c("year","XB_sp1")], pch = 20, col = "navyblue")
 lines(sub[,c("year","XB_sp1")], lwd = 2, col = "navyblue")
 
+
+by.year_sp1 <- ddply(sub, "year", summarise, NATCRIME = mean(n.natcrime), XB = mean(XB_sp1))
+g_sp1 <- (ggplot(by.year_sp1, aes(x = year, y = NATCRIME)) 
+             + geom_line(color = "gray50") + geom_point(color = "hotpink", size = 3))
+g_sp1 <- (g_sp1  + geom_line(aes(x = year, y = XB), color = "gray10")
+          + geom_point(aes(x = year, y = XB), color = "cyan3", size = 3))           
+g_sp1 + ylab("") 
+
+
 # splines with more knots
   # using 4 knots (so 5 evenly-spaced time periods)
 year.quantiles <- quantile(sub$year, probs=seq(from = 0.2, to = 0.8, by = 0.2))
 year.quantiles
 lm.natcrime_sp4 <- lm(n.natcrime ~ lsp(year, year.quantiles), data = sub) 
 summary(lm.natcrime_sp4)
+
+# sex differences and splines
+sub$male <- ifelse(sub$sex == 1, 1, 0)
+summary(lm(n.natcrime ~ male*lsp(year, 1993), data = sub))
+
+# see the same thing with two regressions
+summary(lm(n.natcrime ~ male*year, data = sub, year < 1994))
+summary(lm(n.natcrime ~ male*year, data = sub, year >= 1994))
+
+
+### Exponential trends ###
+
+# take natural log of dependent variable
+sub$ln_n.natcrime <- with(sub, log(n.natcrime))
+summary(lm(ln_n.natcrime ~ year, data = sub))
+
+
+
+
+
+# APC with non-linear trends ----------------------------------------------
+# _________________________________________________________________________
+
+# a very simple model
+summary(lm(n.natcrime ~ lsp(year, 1993) + factor(cohort.cut) + age, data = sub))
+
+# or reduce the model to just period effects
+summary(lm(n.natcrime ~ lsp(year, 1993), data = sub))
+
+# include interactions on post-1993 period and cohort, and post-1993 period and age
+
+sub[,c("lsp1993_1", "lsp1993_2")] <- with(sub, lsp(year, 1993))
+lm.natcrime_lspInteraction <- lm(n.natcrime ~ lsp1993_1 
+                                 + factor(age.cut)*lsp1993_2 
+                                 + factor(cohort.cut)*lsp1993_2, 
+                                 data = sub)
+summary(lm.natcrime_lspInteraction)
+
+
+
+# Graphing age*period interactions over time
+sub$yhat <- predict(lm.natcrime_lspInteraction)
+yhat.by.age <- ddply(sub, c("age.cut", "year"), summarise, yhat = mean(yhat))
+
+g_yhat.by.age <- (ggplot(yhat.by.age, aes(x=year, y=yhat, group=age.cut)) 
+                  + geom_line(aes(color=factor(age.cut)), lwd = 1.1) 
+                  + scale_color_discrete(name = "Age Cuts"))
+g_yhat.by.age
+g_yhat.by.age + theme(legend.position = "bottom", 
+                       panel.background = element_rect(fill = "gray40"), 
+                       legend.title = element_text(face = "italic"))
+ 
+# Graphing cohort*period interactions over time
+yhat.by.cohort <- ddply(sub, c("cohort.cut", "year"), summarise, yhat = mean(yhat))
+g_yhat.by.cohort <- (ggplot(yhat.by.cohort, aes(x=year, y=yhat, group=cohort.cut)) 
+                     + geom_line(aes(color=factor(cohort.cut)), lwd = 1.1) 
+                     + scale_color_discrete(name = "Cohort Cuts"))
+g_yhat.by.cohort 
+g_yhat.by.cohort + theme(legend.position = "bottom", 
+                         panel.background = element_rect(fill = "gray40"), 
+                         legend.title = element_text(face = "italic"))
 

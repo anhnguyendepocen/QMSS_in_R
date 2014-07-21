@@ -90,12 +90,12 @@ GSS_2010$n.happy <- ReverseThis(GSS_2010$happy)
 table(GSS_2010$n.happy)
 table(GSS_2010$happy, GSS_2010$n.happy)
 
-# ReverseThis also works on factor variables with labeled levels
-GSS_2010$f.happy <- factor(GSS_2010$happy, labels = c("no", "somewhat", "yes"))
-table(GSS_2010$f.happy)
-GSS_2010$n.happy2 <- ReverseThis(GSS_2010$f.happy)
-table(GSS_2010$n.happy2, GSS_2010$f.happy) # the labels stay the same (no's are still no's)
-table(as.numeric(GSS_2010$n.happy2), as.numeric(GSS_2010$f.happy)) # but the numeric values associated with the labels are reversed
+# ReverseThis also works on factor variables with labeled levels, keeping the
+# labels the same (e.g. "no" stays as "no") but reversing the numeric values 
+# assigned to the labels.
+
+
+
 
 
 # Logical/Conditional expressions -----------------------------------------
