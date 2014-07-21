@@ -1,8 +1,3 @@
-# To-do so far:
-# figure out how to print only some coefficients with summary(lm) for dummy var model
-
-
-
 #====================================#
 #====== FIXED & RANDOM EFFECTS ======#
 #====================================#
