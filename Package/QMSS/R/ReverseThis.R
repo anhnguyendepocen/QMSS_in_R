@@ -17,7 +17,7 @@ ReverseThis <- function(var){
   
   if (is.factor(var)) {
     levs <- levels(var)
-    freversed <- factor(reversed, labels = levs)
+    freversed <- factor(reversed, labels = rev(levs))
     return(freversed)
   }
   else {

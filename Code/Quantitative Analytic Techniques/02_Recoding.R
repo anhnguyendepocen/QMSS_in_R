@@ -15,6 +15,7 @@
 setwd("INSERT PATH TO DIRECTORY") 
 
 # load packages
+library(QMSS)
 library(plyr)
 
 # load the previously saved 2010 subset of the GSS
@@ -80,6 +81,21 @@ levels(GSS_2010$new.sex2) # check what the levels are
 str(GSS_2010$new.sex2) # gives both the class and the levels
 
 
+
+### Reverse coding ###
+
+# Using ReverseThis function in QMSS package
+table(GSS_2010$happy)
+GSS_2010$n.happy <- ReverseThis(GSS_2010$happy) 
+table(GSS_2010$n.happy)
+table(GSS_2010$happy, GSS_2010$n.happy)
+
+# ReverseThis also works on factor variables with labeled levels
+GSS_2010$f.happy <- factor(GSS_2010$happy, labels = c("no", "somewhat", "yes"))
+table(GSS_2010$f.happy)
+GSS_2010$n.happy2 <- ReverseThis(GSS_2010$f.happy)
+table(GSS_2010$n.happy2, GSS_2010$f.happy) # the labels stay the same (no's are still no's)
+table(as.numeric(GSS_2010$n.happy2), as.numeric(GSS_2010$f.happy)) # but the numeric values associated with the labels are reversed
 
 
 # Logical/Conditional expressions -----------------------------------------
