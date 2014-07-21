@@ -14,7 +14,7 @@ Run the following three lines of code in R to download the "devtools" package, l
 
 `library(devtools)`
 
-`install_github("jgabry/QMSS_in_R/Package/QMSS")`
+`install_github("jgabry/QMSS_package")`
 
 
 Loading the QMSS R package after installation
