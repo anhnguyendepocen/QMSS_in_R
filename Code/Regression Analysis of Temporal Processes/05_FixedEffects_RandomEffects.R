@@ -4,7 +4,7 @@
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/19/2014
+# Last Edited: 07/21/2014
 
 
 
@@ -63,9 +63,9 @@ summary(fd.satfin)
 
 # take only obs for individuals without missingness on "n.satfin" and "realinc10k" for
 # both waves 1 and 2 and drop all obs from panelwave 3 (for demonstration purposes only)
-good_ids1 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==1)])
-good_ids2 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==2)])
-temp <- subset(pd.sub, idnum %in% good_ids1 & idnum %in% good_ids2 & panelwave < 3)
+good1 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==1)])
+good2 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==2)])
+temp <- subset(pd.sub, idnum %in% good1 & idnum %in% good2 & panelwave < 3)
 
 ### First differences ###
 fd.satfin2 <- plm(n.satfin ~ realinc10k,
@@ -150,6 +150,7 @@ summary(re.marhomo)
 
 # can also use sigmaRho function in QMSS package for random effects models
 sigmaRho(re.marhomo)
+
 
 ### Hausman test ###
 phtest(fe.marhomo, re.marhomo)
