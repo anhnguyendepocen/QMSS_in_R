@@ -58,7 +58,8 @@ sub <- na.omit(sub)
 
 lm.closeblk <- plm(closeblk ~ white + pct.black + age + year, 
                    data = sub, index = "sampyear", model = "pooling")
-clusterSE(fit = lm.closeblk, cluster.var = "sampyear", data = sub)
+clusterSE(fit = lm.closeblk, cluster.var = "sampyear")
+
 
 stdCoef(lm.closeblk) # check standardized coefficients
 

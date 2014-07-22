@@ -86,9 +86,9 @@ df <- (n/(n - 1)) * (N - 1)/lm.divorce3$df.residual
 # retest coefficients using coeftest() from lmtest package
 coeftest(lm.divorce3, vcov = df*vcovHC(lm.divorce3, type = "HC0", cluster = "group"))
 
-# For future use I've combined these steps in a function clusterSE
+# For future use there's a clusterSE function in QMSS package
 ?clusterSE
-clusterSE(fit = lm.divorce3, cluster.var = "idnum", data = pd.sub)
+clusterSE(fit = lm.divorce3, cluster.var = "idnum")
 
 
 

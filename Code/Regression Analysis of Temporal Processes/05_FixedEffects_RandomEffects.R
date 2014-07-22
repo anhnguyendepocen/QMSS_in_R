@@ -18,12 +18,9 @@ setwd("INSERT PATH TO DIRECTORY")
 library(QMSS)
 library(plyr)
 library(psych)
-library(VGAM)
 
 # load GSS panel data 
 load("GSS_panel.RData")
-
-
 
 
 
@@ -47,7 +44,7 @@ pd.sub <- pd[,c("idnum","panelwave","n.satfin","realinc10k")]
 ols.satfin <- plm(n.satfin ~ realinc10k, data = pd.sub,
                   index = c("idnum", "panelwave"),
                   model = "pooling")
-clusterSE(ols.satfin, cluster.var = "idnum", data = pd.sub)
+clusterSE(ols.satfin, cluster.var = "idnum")
 
 ### FIRST DIFFERENCES ###
 fd.satfin <- plm(n.satfin ~ realinc10k + panelwave,
@@ -131,7 +128,7 @@ Tab(pd.sub$d.marhomo)
 ols.marhomo <- plm(marhomo ~ married + panelwave, data = pd.sub,
                    index = c("idnum", "panelwave"),
                    model = "pooling")
-clusterSE(fit = ols.marhomo, cluster.var = "idnum", data = pd.sub)
+clusterSE(fit = ols.marhomo, cluster.var = "idnum")
 
 ### Fixed effects ###
 fe.marhomo <- plm(marhomo ~ married + panelwave,
@@ -173,4 +170,23 @@ fd.marhomo <- plm(d.marhomo ~ d.married + panelwave3, data = pd.sub,
                   index = c("idnum", "panelwave"),
                   model = "pooling")
 summary(fd.marhomo)
-clusterSE(fit = fd.marhomo, cluster.var = "idnum", data = pd.sub)
+clusterSE(fd.marhomo, cluster.var = "idnum")
+
+
+
+
+# Fixed effects with interactions -----------------------------------------
+# _________________________________________________________________________
+
+pd.sub$wave2 <- pd.sub$panelwave == 2
+pd.sub$wave3 <- pd.sub$panelwave == 3
+pd.sub$blackXwave2 <- with(pd.sub, black*wave2)
+pd.sub$blackXwave3 <- with(pd.sub, black*wave3)
+
+fe.marhomoX <- plm(marhomo ~ married + panelwave + blackXwave2 + blackXwave3, 
+                   index = c("idnum","panelwave"), model = "within", data = pd.sub)
+summary(fe.marhomoX)
+sigmaRho(fe.marhomoX)
+
+
+

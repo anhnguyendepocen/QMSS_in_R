@@ -47,7 +47,7 @@ pd.sub <- pd[,c("idnum","panelwave","n.satfin","realinc10k")]
 ols.satfin <- plm(n.satfin ~ realinc10k, data = pd.sub,
                   index = c("idnum", "panelwave"),
                   model = "pooling")
-clusterSE(ols.satfin, cluster.var = "idnum", data = pd.sub)
+clusterSE(ols.satfin, cluster.var = "idnum")
 
 ### FIRST DIFFERENCES ###
 fd.satfin <- plm(n.satfin ~ realinc10k + panelwave,
@@ -131,7 +131,7 @@ Tab(pd.sub$d.marhomo)
 ols.marhomo <- plm(marhomo ~ married + panelwave, data = pd.sub,
                    index = c("idnum", "panelwave"),
                    model = "pooling")
-clusterSE(fit = ols.marhomo, cluster.var = "idnum", data = pd.sub)
+clusterSE(fit = ols.marhomo, cluster.var = "idnum")
 
 ### Fixed effects ###
 fe.marhomo <- plm(marhomo ~ married + panelwave,
@@ -172,4 +172,4 @@ fd.marhomo <- plm(d.marhomo ~ d.married + panelwave3, data = pd.sub,
                   index = c("idnum", "panelwave"),
                   model = "pooling")
 summary(fd.marhomo)
-clusterSE(fit = fd.marhomo, cluster.var = "idnum", data = pd.sub)
+clusterSE(fit = fd.marhomo, cluster.var = "idnum")
