@@ -26,7 +26,6 @@ load("GSS.RData")
 
 
 
-
 # Poisson & Negative Binomial ---------------------------------------------
 # _________________________________________________________________________
 
@@ -35,22 +34,35 @@ vars <- c("numwomen", "sex", "age", "year", "marital", "id")
 sub <- GSS[, vars]
 
 summary(sub$numwomen)
-sub <- sub[which(sub$numwomen < 900), ]
-with(sub, hist(numwomen, breaks = 50, col = "maroon", border = "skyblue",
-               bty = "n", xlim = c(0,600), cex.axis = 0.8, las = 2, ylab = NULL))
-ggplot(sub, aes(x = numwomen))  + geom_histogram(fill = "maroon", color = "skyblue") 
+keep <- which(sub$numwomen < 990)
+sub <- sub[keep, ]
+summary(sub$numwomen)
+
+# histogram of numwomen
+ggplot(sub, aes(numwomen))  + geom_histogram(fill = "purple4")
+
+# histogram of numwomen by sex
+ggplot(sub, aes(numwomen, fill = factor(sex)))  + geom_histogram(position="dodge") 
+
 
 # start with OLS
 lm.numwomen <- lm(numwomen ~ as.factor(sex) + age + year + as.factor(marital), 
                   data = sub)
 summary(lm.numwomen)
-summary(lm.numwomen$fitted) # summary of the in-sample predictions (i.e. fitted values)
 
-# Poisson regression with glm() and family = poisson (the default link is "log")
+# summary of the in-sample predictions (i.e. fitted values)
+summary(lm.numwomen$fitted) # we get negative counts and a low max
+
+# Poisson regression with glm() with family = poisson (the default link is "log")) 
 pois.numwomen <- glm(numwomen ~ as.factor(sex) + age + year + as.factor(marital), 
-                     data = sub, family = poisson)
-summary(pois.numwomen)
+                     data = sub, family = poisson) 
+summary(pois.numwomen)$coef
 exp(coef(pois.numwomen)) # exponentiated coefficients
+
+# can retest with robust standard errors
+library(sandwich)
+coeftest(pois.numwomen, vcov = vcovHC(pois.numwomen, type = "HC0"))
+
 
 # predicted count for a married person of mean age in the mean year of the survey by gender
 predict(pois.numwomen, type = "response", 
@@ -58,7 +70,7 @@ predict(pois.numwomen, type = "response",
           year = mean(sub$year, na.rm = T),
           age = mean(sub$age, na.rm = T), 
           marital = 1, 
-          sex = 1:2))
+          sex = 1:2)) # get predictions for sex==1 and sex==2
 
 
 # With exposure (use offset argument of glm())
@@ -66,6 +78,7 @@ pois.numwomen2 <- glm(numwomen ~ as.factor(sex) + year + as.factor(marital),
                      data = sub, family = poisson, 
                      offset = log(age))
 summary(pois.numwomen2)
+coeftest(pois.numwomen2, vcov = vcovHC(pois.numwomen2, type = "HC0"))
 
 
 # Compare variance & mean of outcome to look for overdispersion (Poisson random variable has mean = variance)

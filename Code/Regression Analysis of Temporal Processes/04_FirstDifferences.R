@@ -211,11 +211,10 @@ summary(vglm.divorce)
 vglm.divorce2 <- vglm(formula(vglm.divorce),pd.sub,family=cumulative(reverse=T))
 propOddsTest(vglm.divorce, vglm.divorce2)
 
-# Cross-tab
-library(gmodels)
-with(subset(pd.sub, d.divorced!=0),
-     CrossTable(d.divorce.easier, d.divorced, 
-                exp = F, prop.r = T, prop.t = F, prop.chisq=F, format = "SAS"))
+# Cross-tab (using TabX from QMSS package)
+?TabX
+with(subset(pd.sub, d.divorced != 0, TabX(d.divorce.easier, d.divorced)))
+
 
 
 
