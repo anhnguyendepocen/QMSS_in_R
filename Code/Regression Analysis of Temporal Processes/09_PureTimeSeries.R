@@ -41,7 +41,6 @@ sub <- GSS[, vars]
 
 
 # Recodes (using mutate from plyr, but could also use within(sub, ) )
-?mutate
 sub <- mutate(sub, 
               n.confinan = ReverseThis(confinan), # ReverseThis from QMSS package
               kidslt18 = babies + preteen + teens,
@@ -92,7 +91,6 @@ by.year.ts <- ts(by.year.ts, start = 1, end = which(by.year.ts$year == 1992))
 # Time series plots -------------------------------------------------------
 # _________________________________________________________________________
 
-
 install.packages("reshape2")
 
 meltMyTS <- function(mv.ts.object, time.var, keep.vars){
@@ -107,7 +105,7 @@ meltMyTS <- function(mv.ts.object, time.var, keep.vars){
     melt.dat <- data.frame(mv.ts.object)[, keep.vars]
   }
   melt.dat <- melt(melt.dat, id.vars = time.var)
-  colnames(melt.dat)[which(colnames(plot.dat) == time.var)] <- "time"
+  colnames(melt.dat)[which(colnames(melt.dat) == time.var)] <- "time"
   return(melt.dat)
 }
 
