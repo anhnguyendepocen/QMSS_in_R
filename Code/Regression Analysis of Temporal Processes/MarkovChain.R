@@ -17,11 +17,14 @@ while (j < SIMS) {
   if(state[j] == 4) {
     state[j+1] <- sample(c(2,4), size = 1, prob = c(1/2, 1/2)) 
   }
+  points(state[j], j, col = clrs[state[j]], pch = 18)
   j = j+1
 }
 
 library(ggplot2)
 qplot(state)
-acf(ts(state))
+plot(ts(state))
+
+
 
 
