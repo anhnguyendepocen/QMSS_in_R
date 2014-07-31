@@ -34,28 +34,8 @@ load("GSS.RData")
 
 vars <- c("year", "confinan", "sex", "age", "partyid", "wrkstat", "degree")
 
-# vars <- c("cohort", "confinan", "attend", "pray", "conclerg", "homosex", "year", 
-#           "sex", "age", "realinc", "marital", "divlaw", "partyid", "polviews", 
-#           "babies", "preteen", "teens", "wrkstat", "divorce", "degree")
 
 sub <- GSS[, vars]
-
-
-# Recodes (using mutate from plyr, but could also use within(sub, ) )
-# sub <- mutate(sub, 
-#               n.confinan = ReverseThis(confinan), # ReverseThis from QMSS package
-#               kidslt18 = babies + preteen + teens,
-#               married = ifelse(marital == 1, 1, 0),
-#               baplus = ifelse(degree >= 3, 1, 0),
-#               fulltime = ifelse(wrkstat == 1, 1, 0),
-#               womenft = ifelse(sex == 2 & wrkstat == 1, 1, 0),
-#               marriedlt50 = ifelse(married == 1 & age < 50, 1, 0),
-#               degreelt50 = ifelse(baplus == 1 & age <50, 1, 0),
-#               f.partyid = factor(partyid),
-#               f.divlaw = factor(divlaw),
-#               divlaw1 = ifelse(divlaw == 1, 1, 0),
-#               partyid6 = ifelse(partyid == 6, 1, 0),
-#               partyid7 = ifelse(partyid == 7, 1, 0))
 
 sub <- mutate(sub, 
               n.confinan = ReverseThis(confinan), # ReverseThis from QMSS package
@@ -70,19 +50,13 @@ sub <- mutate(sub,
 
 
 # get means by year
-# vars2 <- c("conclerg", "n.confinan", "fulltime", "attend", "pray", "degreelt50", "cohort", 
-#            "homosex", "marriedlt50", "sex", "kidslt18", "age", "realinc", "married", "divlaw", 
-#            "polviews", "babies", "preteen", "teens", "wrkstat", "womenft", "degree", "partyid6", 
-#            "partyid7", "divlaw1")
-# 
-# by.year <- aggregate(sub[, vars2], list(year = sub$year), mean, na.rm = T)
 by.year <- aggregate(subset(sub, sel = -year), list(year = sub$year), mean, na.rm = T)
 
 # interpolate for some missing years
-# add the extra years
+  # add the extra years
 by.year[30:40, "year"] <- c(1979, 1981, 1992, 1995, seq(1997, 2009, 2))
 by.year <- arrange(by.year, year)
-# make a time series object by.year.ts and interpolate using na.approx
+  # make a time series object by.year.ts and interpolate using na.approx
 by.year.ts <- ts(by.year)
 by.year.ts <- na.approx(by.year.ts)
 

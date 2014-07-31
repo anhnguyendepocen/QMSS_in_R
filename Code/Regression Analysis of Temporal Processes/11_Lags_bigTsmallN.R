@@ -1,17 +1,17 @@
 ## to do:
-# figure out unit root test stuff for all examples
-# ?ur.ers
-# ?embed
-# help(package = "fUnitRoots")
+    # figure out unit root test stuff for all examples
+    # AR(1)-corrected fixed effects model
+    # AR(1)-corrected 1st differences model
 
 
-#=======================================================================#
-#====== LAGS, 'BIG T, SMALL N', CO-INTEGRATION, GRANGER CAUSALITY ======#
-#=======================================================================#
+
+#============================================================================# 
+#====== DISTRIBUTED LAG MODELS, LAGGED Y-VARS, 'BIG T, SMALL N' PANELS ======# 
+#============================================================================# 
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/25/2014
+# Last Edited: 07/29/2014
 
 
 
@@ -238,6 +238,8 @@ sigmaRho(re.married)
 # hausman test
 phtest(fe.married, re.married)
 
+
 # AR(1)-corrected fixed effects model
-pwartest(marriedlt50 ~ degreelt50, index = c("region", "year"), data = by.year.region)
+
+# AR(1)-corrected 1st differences model
 
