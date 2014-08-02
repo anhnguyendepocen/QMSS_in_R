@@ -45,9 +45,12 @@ sub$childcare <- factor(sub$natchld,
 Tab(sub$childcare)
 
 
+
+
 # Ordinal logit model using vglm() from VGAM package
 vglm.child <- vglm(childcare ~ childs + age + married + I(log(realinc)) + polviews, 
                    data = sub, family = propodds)
+
 summary(vglm.child) 
 
 # the output doesn't give p-values, but we can compute them and add them to the output

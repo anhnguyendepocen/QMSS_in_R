@@ -27,11 +27,10 @@ load("GSS.RData")
 
 
 
-# Prediction --------------------------------------------------------------
+# One step ahead forecasts ------------------------------------------------
 # _________________________________________________________________________
 
 ### The question: how many children under the age of 18 will there be next year? ###
-
 
 vars <- c("cohort", "attend", "year", "babies", "preteen", "teens")
 sub <- GSS[, vars]
@@ -100,9 +99,8 @@ ggplot(molten.f, aes(x = year, y = value, color = variable, linetype = variable)
 
 
 
-# Prediction error --------------------------------------------------------
+# Forecast error ----------------------------------------------------------
 # _________________________________________________________________________
-
 
 # forecast error from arima model
 arima.error <- ddply(arima.dat, "year", summarise,
@@ -148,5 +146,63 @@ round(MSFE.ols, 4)
 # ratio of MSFEs from ols and lag forecasts
 ratio.ols.lag <- MSFE.ols/MSFE.lag
 round(ratio.ols.lag, 4)
+
+
+
+
+# Multi-step ahead forecasts ----------------------------------------------
+# _________________________________________________________________________
+
+### The question: how many children under the age of 18 will there be after 1999? ###
+
+temp <- cbind(year = by.year.ts[,"year"], attend = by.year.ts[,"attend"])
+temp[temp[,"year"] > 1999, "attend"] <- NA
+
+n0 <- cbind(temp[,"attend"],
+            lag(temp[,"attend"], k = -1),
+            lag(temp[,"attend"], k = -2),
+            lag(temp[,"attend"], k = -3),
+            lag(temp[,"attend"], k = -4))
+
+
+get_future_dat <- function(n){
+  arima.fit <- arima(n[,1], order = c(0,0,0), xreg = n[,2:5], optim.method = "CG")
+  fitted <- fitted(arima.fit)
+  new.n <- cbind(n = fitted,
+                 L1 = lag(fitted, -1),
+                 L2 = lag(fitted, -2),
+                 L3 = lag(fitted, -3),
+                 L4 = lag(fitted, -4))
+#   lm.fit <- lm(n[,1] ~ n[,2:5])
+#   fitted <- fitted(lm.fit)
+#   new.n <- cbind(n = ts(fitted),
+#                  L1 = lag(ts(fitted), -1),
+#                  L2 = lag(ts(fitted), -2),
+#                  L3 = lag(ts(fitted), -3),
+#                  L4 = lag(ts(fitted), -4))
+  new.n
+}
+
+
+n1 <- get_future_dat(n0)
+n2 <- get_future_dat(n1$new.n)
+n3 <- get_future_dat(n2$new.n)
+n4 <- get_future_dat(n3$new.n)
+n5 <- get_future_dat(n4$new.n)
+n6 <- get_future_dat(n5$new.n)
+n7 <- get_future_dat(n6$new.n)
+n8 <- get_future_dat(n7)
+n9 <- get_future_dat(n8)
+
+
+
+
+
+
+
+
+
+
+
 
 

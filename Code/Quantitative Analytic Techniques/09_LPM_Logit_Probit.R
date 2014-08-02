@@ -338,9 +338,13 @@ curve(qnorm, 0, 1, col = "orangered", lwd = 2, main = "Inverse CDF, Std Normal D
 
 # Logit vs probit
 curve(pnorm, -4, 4, col = "orangered", lwd = 2)
-curve(plogis, -4, 4, col = "navyblue", lwd = 2, add = T)
+curve(plogis, col = "navyblue", lwd = 2, add = T)
 legend("right", c("Probit", "Logit"), lwd = 2, col = c("orangered","navyblue"), bty="n")
 
+# Getting logit and probit to line up: multiply by rougly 1.7
+curve(pnorm(x), -4, 4, col = "orangered", lwd = 2)
+curve(plogis(1.7*x), col = "navyblue", lty = 2, add = T)
+legend("right", c("Probit", "Logit"), lwd = c(2,1), lty = c(1,2), col = c("orangered","navyblue"), bty="n")
 
 
 # Probit model 

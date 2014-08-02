@@ -26,7 +26,7 @@ load("GSS.RData") # this assumes GSS.RData is in the working directory.
 
 # The cumulative dataset has data for many years. One way to extract a subset for a particular year
 # is to use the subset function
-GSS_2010 <- subset(GSS, year==2010) # only data for 2010
+GSS_2010 <- subset(GSS, year == 2010) # only data for 2010
 
 # We can save the GSS_2010 subset to the working directory so we can use it without also loading 
 # the larger GSS dataset
