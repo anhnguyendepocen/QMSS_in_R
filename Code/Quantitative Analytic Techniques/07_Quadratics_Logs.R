@@ -48,10 +48,7 @@ g + geom_smooth(method = "lm", formula = y ~ poly(x, 2)) # add fitted quadratic 
 
   # or manually with traditional R plotting functions
     # first plot the points
-with(sub, plot(sei, angry,
-               pch = 20, # the "pch" argument controls the "plotting character", i.e. the symbol used for the points (see ?pch and scroll down a bit to see a bunch of the options)
-               cex = 0.8, # the "cex" argument controls how much the plotted points should be magnified relative to the default (so here 0.8 shrinks them a bit)
-               col = "darkred"))
+with(sub, plot(sei, angry, pch = 20, cex = 0.8, col = "darkred"))
     # now add the curve using the coefficients from our regression 
 b <- round(lm.angry2$coef, 4)
 curve(b %*% rbind(1,x,x^2), add=T, lwd = 2, col = "darkblue")  # or equivalently b[1] + b[2]*x + b[3]*x^2 instead of b%*%rbind(1,x,x^2)
@@ -80,8 +77,8 @@ with(model.dat, barplot(by(attend, partyid, mean)))
 library(RColorBrewer) 
 ?brewer.pal
 
-  # first make color palette with a color for each level of partyid, with the colors moving from deep 
-  # blue to deep red to represent political spectrum
+  # first make color palette with a color for each level of partyid, with the
+  # colors moving from deep blue to deep red to represent political spectrum
 levs <- length(unique(model.dat$partyid)) # the number of unique values of partyid
 display.brewer.pal(n = levs, "RdBu") # this is good but we want blue on the left and red on the right
 my.palette <- brewer.pal(n = levs, "RdBu") # assign the color palette to my.palette
@@ -124,23 +121,29 @@ with(lm.attend2, curve(coefficients[1] + coefficients[2]*x + coefficients[3]*x^2
 # Log transformations -----------------------------------------------------
 # _________________________________________________________________________
 
-# extract variable realrinc without any missing values (for demonstration purposes)
+# extract variable realrinc without any missing values (for demonstration
+# purposes)
 realrinc <- na.omit(GSS$realrinc)
 
 # make plotting area have 2 rows and 1 column 
 par(mfrow = c(2,1)) 
-  # Note: often R-Studio's plot window doesn't handle these different layouts well. 
-  # Click on magnifying glass labeled "zoom" to see what the plot really looks like
+  # Note: often R-Studio's plot window doesn't handle these different layouts 
+  # well. Click on magnifying glass labeled "zoom" to get a much better sense
+  # for what the plot really looks like
 
 # Compare distributions of realrinc and log(realrinc)
-  # Using traditional R plotting
-truehist(realrinc, col = "skyblue", yaxt = "n", cex.axis = 0.8) # distribution of realrinc
-curve(dnorm(x, mean = mean(realrinc), sd = sd(realrinc)), # add normal density curve
+  # histogram of realrinc
+truehist(realrinc, col = "skyblue", yaxt = "n", cex.axis = 0.8) 
+  # add normal density curve
+curve(dnorm(x, mean = mean(realrinc), sd = sd(realrinc)), 
       lwd = 2, col = "orangered", add=T)
-truehist(log(realrinc), col = "skyblue", yaxt = "n", cex.axis = 0.8) # distribution of log(realrinc)
-curve(dnorm(x, mean = mean(log(realrinc)), sd = sd(log(realrinc))), # add normal density curve
+  # histogram of log(realrinc)
+truehist(log(realrinc), col = "skyblue", yaxt = "n", cex.axis = 0.8)
+  # add normal density curve
+curve(dnorm(x, mean = mean(log(realrinc)), sd = sd(log(realrinc))), 
       lwd = 2, col = "orangered", add=T)
-par(mfrow=c(1,1)) # reset plotting layout
+# reset plotting layout
+par(mfrow=c(1,1)) 
 
 
 

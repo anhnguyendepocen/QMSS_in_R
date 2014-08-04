@@ -44,12 +44,12 @@ load("GSS_2010.RData")
 summary(GSS_2010$health) # GSS_2010 is the data frame; health is the column/variable
 
 summary(GSS_2010[,'health']) # this gives the same output as "summary(GSS_2010$health)"
-# Between the brackets we can put a row name/number before the comma and column name/number
-# after the comma. Here we want to summarize the "health" variable for all rows, so we leave
-# the row index blank
+# Between the brackets we can put a row name/number before the comma and column
+# name/number after the comma. Here we want to summarize the "health" variable
+# for all rows, so we leave the row index blank
 
-# To get a summary of two variables "health" and "sibs" we can use the c() funcion, which
-# combines its arguments into a vector 
+# To get a summary of two variables "health" and "sibs" we can use the c()
+# funcion, which combines its arguments into a vector
 summary(GSS_2010[, c("health", "sibs")]) 
 
 # Print the first 10 values of health variable
@@ -67,7 +67,8 @@ ncol(GSS_2010)
 # Print the row numbers containing the missing values for the health variable
 which(is.na(GSS_2010$health)) 
 
-# For each observation of health print TRUE if the element is missing or FALSE if not
+# For each observation of health print TRUE if the element is missing or FALSE
+# if not
 is.na(GSS_2010$health) 
 
 # Count the number of missing values for the health variable
@@ -110,27 +111,28 @@ prop.table(table(GSS_2010[, c("happy","health")]))
 # Install, load and use a package -----------------------------------------
 # _________________________________________________________________________
 
-# Install the "plyr" package (with tools for splitting, applying and combining data)
-install.packages("plyr") # A great package for summarizing data and creating new variables that are functions of variables in the data
+# Install the "plyr" package (with tools for splitting, applying and combining
+# data)
+install.packages("plyr")
 
 # Load the package.
 library(plyr) # this needs to be done for each R session
 
 # Use plyr's ddply() function to get mean number of siblings by region
-ddply(GSS_2010, # the data frame
-      "region", # the name of the variable we want to use to subset the data. can also use the syntax .(region) instead of "region"
-      summarize, # the function to apply to each subset
-      Mean.Sibs = mean(sibs, na.rm = T) # display the mean in a column called "mean(sibs)" 
+ddply(GSS_2010,   # the data frame
+      "region",   # name of variable to use to subset the data
+      summarise,  # the function to apply to each subset
+      Mean.Sibs = mean(sibs, na.rm = T) # display the mean in a column called "Mean.Sibs" 
       )
 
 # Same but also including standard deviation and median 
-ddply(GSS_2010, "region", summarize, 
+ddply(GSS_2010, "region", summarise, 
       Mean = mean(sibs, na.rm = T),
       SD = sd(sibs, na.rm = T),
       Median = median(sibs, na.rm = T))
 
 # Same but assign the results to a data frame called "Regional"
-Regional <- ddply(GSS_2010, "region", summarize, 
+Regional <- ddply(GSS_2010, "region", summarise, 
                   Mean = mean(sibs, na.rm = T),
                   SD = sd(sibs, na.rm = T),
                   Median = median(sibs, na.rm = T))

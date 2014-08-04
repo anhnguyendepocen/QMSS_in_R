@@ -32,13 +32,15 @@ load("GSS_2010.RData")
 
 ### Job prestige & educational attainment ###
 
-# Take the subset of GSS_2010 without missings on educ and prestg80 and with educ at least 10 (for demonstration purposes)
+# Take the subset of GSS_2010 without missings on educ and prestg80 and with
+# educ at least 10 (for demonstration purposes)
 sub <- subset(GSS_2010, educ>=10 & !is.na(educ) & !is.na(prestg80))
-# Take a random sample of 10 individuals (for demonstration purposes) and display and plot their values for educ & prestg80
+# Take a random sample of 10 individuals (for demonstration purposes) and
+# display and plot their values for educ & prestg80
 samp <- sub[sample(nrow(sub),10), c("id", "educ", "prestg80")]
 samp <- arrange(samp, educ, prestg80, id)  # sort by educ then prestg80 then id       
 samp
-with(samp, plot(educ, prestg80, # the x and y values of the points to plot
+with(samp, plot(educ, prestg80, # x,y values of the points to plot
                 pch = 19, # pch controls the plotting ‘character’ (the symbol used). see ?points for more details
                 col="skyblue")) # color the points "skyblue"
 
@@ -81,7 +83,8 @@ abline(a = intercept, b = slope,
        lwd = 2, # lwd controls the line width 
        lty = 2, # lwd controls the line type (lty = 2 will produce a dashed line)
        col = "maroon") 
-  # add some arrows to emphasize that the regression line continues outside the range of the data
+  # add some arrows to emphasize that the regression line continues outside the
+  # range of the data
 with(samp, arrows(
   x0 = range(educ), # x-coordinates of points FROM which to draw.
   y0 = intercept + slope*range(educ), # y-coordinates of points FROM which to draw.
@@ -90,6 +93,7 @@ with(samp, arrows(
   length = 0.2, # length of the edges of the arrow head (in inches)
   lwd = 2, 
   col = "maroon"))
+
 
 
 

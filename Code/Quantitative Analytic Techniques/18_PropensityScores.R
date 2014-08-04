@@ -44,7 +44,8 @@ sub$db1 <- sub$born == 1
 sub$df1 <- sub$parborn == 0
 sub$f.region <- factor(sub$region)
 
-xvars <- c("dm1", "wordsum", "db1", "df1", "educ", "paeduc", "madeg", "incom16", "f.region")
+xvars <- c("dm1", "wordsum", "db1", "df1", "educ", 
+           "paeduc", "madeg", "incom16", "f.region")
 Formula <- as.formula(paste("n.happy ~ ", paste(xvars, collapse = " + ")))
 Formula
 lm(Formula, data = sub, sex == 1) # for men

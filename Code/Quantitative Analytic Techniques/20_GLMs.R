@@ -53,7 +53,8 @@ summary(lm.numwomen)
 # summary of the in-sample predictions (i.e. fitted values)
 summary(lm.numwomen$fitted) # we get negative counts and a low max
 
-# Poisson regression with glm() with family = poisson (the default link is "log")) 
+# Poisson regression with glm() with family = poisson (the default link is
+# "log"))
 pois.numwomen <- glm(numwomen ~ as.factor(sex) + age + year + as.factor(marital), 
                      data = sub, family = poisson) 
 summary(pois.numwomen)$coef
@@ -64,7 +65,8 @@ library(sandwich)
 coeftest(pois.numwomen, vcov = vcovHC(pois.numwomen, type = "HC0"))
 
 
-# predicted count for a married person of mean age in the mean year of the survey by gender
+# predicted count for a married person of mean age in the mean year of the
+# survey by gender
 predict(pois.numwomen, type = "response", 
         newdata = data.frame(
           year = mean(sub$year, na.rm = T),
@@ -81,7 +83,8 @@ summary(pois.numwomen2)
 coeftest(pois.numwomen2, vcov = vcovHC(pois.numwomen2, type = "HC0"))
 
 
-# Compare variance & mean of outcome to look for overdispersion (Poisson random variable has mean = variance)
+# Compare variance & mean of outcome to look for overdispersion (Poisson random
+# variable has mean = variance)
 mean(sub$numwomen, na.rm = T)
 var(sub$numwomen, na.rm = T)
 

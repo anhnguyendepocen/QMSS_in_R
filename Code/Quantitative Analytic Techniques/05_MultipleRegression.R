@@ -27,8 +27,9 @@ load("GSS_2010.RData")
 # Does owning a house increase your vocabulary? ---------------------------
 # _________________________________________________________________________
 
-# Take a subset of the cumulative GSS data including only the dwelown, wordsum, degree variables. 
-# The cumulative file is huge so taking a subset can help improve performance
+# Take a subset of the cumulative GSS data including only the dwelown, wordsum, 
+# degree variables. The cumulative file is huge so taking a subset can help
+# speed up computations
 sub <- GSS[, c("dwelown", "wordsum", "degree")] 
 Tab(sub$dwelown)
 
@@ -38,7 +39,7 @@ sub$home2 <- sub$dwelown == 2
 sub$home3 <- sub$dwelown == 3
 
 # If there were many more than 3 levels it could be more efficient to use a loop
-# along with the assign function. 
+# along with the assign function.
 ?assign
 sub <- within(sub, for(i in 1:3) assign(paste0("home",i), dwelown == i) )
 
@@ -50,7 +51,7 @@ summary(lm(wordsum ~ home1 + degree, data = sub))
 
 # Mean of wordsum by levels of home1
   # using ddply() from plyr package
-ddply(.data = na.omit(sub), # na.omit(sub) will omit anyone with missing values on any of the variables in sub
+ddply(.data = na.omit(sub), # na.omit(sub) omits anyone with NAs on any of the vars in sub
       "home1", summarise, Mean.wordsum  = mean(wordsum))
   # or using base R function tapply
 with(na.omit(sub), tapply(wordsum, home1, mean))
@@ -62,9 +63,11 @@ with(na.omit(sub), tapply(wordsum, list(home1, degree), mean))
 with(na.omit(sub), by(wordsum, list(home1, degree), mean))
 
 
-# Bar graph of differences in avg wordsum score btw home-owners and non-home-owners by degree level 
+# Bar graph of differences in avg wordsum score btw home-owners and
+# non-home-owners by degree level
 
-  # first get overall difference in avg wordsum scores btw home-owners and non-home-owners
+  # first get overall difference in avg wordsum scores btw home-owners and
+  # non-home-owners
 total.diff <- with(na.omit(sub), mean(wordsum[home1==T]) - mean(wordsum[home1==F]))
 total.diff
 
@@ -78,15 +81,15 @@ wordsum.tab <- rbind(wordsum.tab, c(degree = 5, diff = total.diff))
 wordsum.tab
 
   # Now make the bar graph 
-barplot(as.numeric(wordsum.tab[, "diff"]), # the heights of the bars
-        names.arg = c(0:4, "overall"), # the labels for the bars
-        col = rainbow(n=6, v=.75)) # color the bars with a six color rainbow (see ?rainbow())
+barplot(as.numeric(wordsum.tab[, "diff"]), # heights of the bars
+        names.arg = c(0:4, "overall"), # labels for the bars
+        col = rainbow(n=6, v=.75)) # color bars with six color rainbow (see ?rainbow())
 
   # or using ggplot2 package
 # install.packages("ggplot2") 
 library(ggplot2)
-g <- ggplot(data = wordsum.tab, aes(x = degree, y = diff, 
-                             fill = factor(degree, labels = c(0:4, "overall")))) 
+g <- ggplot(wordsum.tab, 
+            aes(x = degree, y = diff, fill = factor(degree, labels = c(0:4, "overall")))) 
 g <- g + geom_bar(stat="identity") # "identity" means don't apply a statistical transformation, i.e. just give us the value of "diff" 
 (g <- g + guides(fill = guide_legend(title = "DEGREE")))
 
@@ -116,12 +119,15 @@ summary(lm(educ ~ paattend + paeduc, data = sub))
 # Relationship between paattend and paeduc
 summary(lm(paattend ~ paeduc, data = sub))
 
-# Quick note about R: if we had assigned the original simple linear regression model to an object
+# Quick note about R: if we had assigned the original simple linear regression
+# model to an object
 lm.educ <- lm(educ ~ paattend, data = sub, subset = !is.na(paeduc))
-# then we when we expand to the multiple regression model we can use the update() function (see ?update)
-# to modify lm.educ by adding paeduc to the independent variables
+# then we when we expand to the multiple regression model we can use the 
+# update() function (see ?update) to modify lm.educ by adding paeduc to the 
+# independent variables
 lm.educ2 <- update(lm.educ, ~ . + paeduc) # this adds "+ paeduc" to the right side of the original model formula
-# Or, instead of creating a new object lm.educ2 we could just replace our original model if we wanted
+# Or, instead of creating a new object lm.educ2 we could just replace our
+# original model if we wanted
 lm.educ <- update(lm.educ, ~ . + paeduc)
 
 
@@ -198,7 +204,8 @@ stdCoef <- function(fit){
   return(std.coefs) # this tells R that the output should be std.coefs
   }
 
-# Use our new stdCoef() function to get the standardized coefficients for our multiple regression model
+# Use our new stdCoef() function to get the standardized coefficients for our
+# multiple regression model
 stdCoef(lm.family2)
 
 
@@ -224,7 +231,8 @@ class(GSS_2010$region) # right now "region" is of class "integer"
 summary(lm(educ ~ region, data = GSS_2010)) # treating region as a numeric variable
 
 # Simple linear regression with dummies for region
-  # instead of creating a separate dummy variable for each level of region we can use factor()
+  # instead of creating a separate dummy variable for each level of region we
+  # can use factor()
 summary(lm(educ ~ factor(region), data = GSS_2010)) 
 
 # We could also make a new variable that is of class "factor"
@@ -248,7 +256,8 @@ summary(lm(educ ~ f.region, data = GSS_2010)) # by default level 1 (New England)
 summary(lm(educ ~ relevel(f.region, ref=9), data = GSS_2010)) # omit level 9 (pacific) instead
 summary(lm(educ ~ relevel(f.region, ref="Pacific"), data = GSS_2010)) # equivalent
 
-  # Option 2: change the default reference level for f.region inside the data set and then run the model
+  # Option 2: change the default reference level for f.region inside the data
+  # set and then run the model
 GSS_2010$f.region <- relevel(GSS_2010$f.region, ref = 9) # or ref = "Pacific"
 summary(lm(educ ~ f.region, data = GSS_2010)) # now we don't need to relevel inside the model
 
@@ -258,7 +267,8 @@ summary(lm(educ ~ f.region, data = GSS_2010)) # now we don't need to relevel ins
 # Inside multiple regression ----------------------------------------------
 # _________________________________________________________________________
 
-# For demonstration purposes, take subset of GSS_2010 without missingness on educ and prestg80 and with educ at least 10 
+# For demonstration purposes only, take subset of GSS_2010 without missingness
+# on educ and prestg80 and with educ at least 10
 sub <- subset(GSS_2010, educ>=10 & !is.na(educ) & !is.na(prestg80), select = c(prestg80, educ, sex))
 # Take a random sample of 10 individuals (for demonstration purposes)
 samp <- sub[sample(nrow(sub),10), ]
@@ -266,8 +276,8 @@ samp <- sub[sample(nrow(sub),10), ]
 # Make indicator for male
 samp$male <- samp$sex == 1
 
-# We don't need to do this, but for future reference if we wanted to keep the male variable
-# but drop the original sex variable we can use NULL like  
+# We don't need to do this, but for future reference if we wanted to keep the
+# male variable but drop the original sex variable we can use NULL like
 samp$sex <- NULL
 
 # Fit a plane
@@ -306,7 +316,7 @@ print(samp[,c("educ","male","e1")], row.names = F)
 with(samp, cor(e1, cbind(educ,male)))
 
   # Estimate the effect of education (purged of maleness) on prestige
-summary(lm(prestg80 ~ e1, data = samp)) # the coefficient on e1 should be the same as coefficient on educ in the multiple regression model
+summary(lm(prestg80 ~ e1, data = samp)) # coef on e1 should be same as coef on educ in the multiple regression model
 
 # Purging male of education
   # Get residuals from regression of educ on male
@@ -317,7 +327,7 @@ print(samp[, c("educ", "male", "e2")], row.names = F)
 with(samp, cor(e2, cbind(educ,male)))
 
   # Estimate the effect after "purging"
-summary(lm(prestg80 ~ e2, data = samp)) # the coefficient on e2 should be the same as coefficient on male in the multiple regression model
+summary(lm(prestg80 ~ e2, data = samp)) # coef on e2 should be same as coef on male in the multiple regression model
 
 
 # R^2 in multiple regression
@@ -349,12 +359,13 @@ lm.trust <- lm(new.trust ~ black, data = sub,
 summary(lm.trust)
 
 # Global F-test
-# We can see the F-statistic from the output of summary(lm.trust) above or we can extract it 
+  # We can see the F-statistic from the output of summary(lm.trust) above or we
+  # can extract it
 summary(lm.trust)$f
 
 # Add in more predictors
-# Below, I(log(realinc)) means use log(realinc) as the variable w/o having to create a new variable, 
-# i.e. no need to do lnrealinc <- log(realinc)). 
+  # Below, I(log(realinc)) means use log(realinc) as the variable w/o having to 
+  # create a new variable, i.e. no need to do lnrealinc <- log(realinc)).
 lm.trust2 <- update(lm.trust, ~ . + educ + I(log(realinc)) + as.factor(region))
 summary(lm.trust2)
 
@@ -387,7 +398,8 @@ deg <- lm.tv$model$degree # extract the obs of degree used in fitting the model
 
 # boxplot using traditional R boxplot() function 
 boxplot(e ~ factor(deg))
-# if we don't have the levels of degree named, we can pass an optional "names" argument to boxplot()
+# if we don't have the levels of degree named, we can pass an optional "names"
+# argument to boxplot()
 boxplot(e ~ factor(deg), names = c("<HS","HS","JrCol","BA",">BA"))
 # or can do a boxplot using ggplot package
 ggplot(NULL, aes(x = factor(deg), y = e)) + geom_boxplot()
@@ -396,9 +408,10 @@ ggplot(NULL, aes(x = factor(deg), y = e)) + geom_boxplot()
 # Robust standard errors
 # install.packages("rms")
 library(rms)
-# we use the robcov() and ols() functions in the rms package to get Huber-White estimator of covariance matrix
-# the values reported in the S.E. column are now robust standard errors
-robcov(ols(tvhours ~ degree, data = GSS_2010, x = T, y = T)) # need arguments x=T and y=T (so that robcov() function has access to expanded design matrix)
+# we use the robcov() and ols() functions in the rms package to get Huber-White
+# estimator of covariance matrix the values reported in the S.E. column are now
+# robust standard errors
+robcov(ols(tvhours ~ degree, data = GSS_2010, x = T, y = T)) # need args x=T and y=T (so robcov() has access to expanded design matrix)
 
 
 
@@ -426,7 +439,9 @@ shapiro.test(e)
 ### Outliers & influential observations ###
 
 # Residuals vs. leverage plot
-plot(lm.tv, which = 5) # just using plot(lm.tv) gives a bunch of plots. the "which" argument allows us to choose a particular plot without plotting all of them 
+  # just using plot(lm.tv) gives a bunch of plots. the "which" argument allows us
+  # to choose a particular plot without plotting all of them
+plot(lm.tv, which = 5) 
 
 # Cooks distance
 cooks.distance(lm.tv)

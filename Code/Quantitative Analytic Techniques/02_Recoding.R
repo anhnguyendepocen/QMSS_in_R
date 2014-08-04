@@ -11,7 +11,8 @@
 # Setup -------------------------------------------------------------------
 # _________________________________________________________________________
 
-# set working directory (replace text inside quotes with path to the desired directory)
+# set working directory (replace text inside quotes with path to the desired
+# directory)
 setwd("INSERT PATH TO DIRECTORY") 
 
 # load packages
@@ -28,15 +29,16 @@ load("GSS_2010.RData")
 # _________________________________________________________________________
 
 
-### Note: There are many many many many many ways to recode in R. Below are just a few of them.
+# Note: there are many ways to recode in R. Below are just a few of them.
 
 # First look at the summary for the age variable
 summary(GSS_2010$age) 
 
-# Create new variable "new.age" with two levels "young" (if <= 45 yrs old) and old (if > 45 yrs old)
+# Create new variable "new.age" with two levels "young" (if <= 45 yrs old) and
+# old (if > 45 yrs old)
   
   # Method 1: ifelse function
-GSS_2010$new.age <- ifelse(GSS_2010$age <= 45, # a logical conditional to test (here it's whether age is at most 45)
+GSS_2010$new.age <- ifelse(GSS_2010$age <= 45, # logical conditional to test 
                            "young", # value to assign if condition is TRUE
                            "old") # value to assign if condition is FALSE
 table(GSS_2010$new.age)
@@ -45,29 +47,33 @@ str(GSS_2010$new.age) # this tells us that new.age is an object of type "charact
   # Method 2: recode function from memisc package
 # install.packages("memisc")
 library(memisc)
-GSS_2010$new.age <- recode(GSS_2010$age, # the object we want to recode
-                           "old" <- range(46, max), # assign value "old" if age is >= 46
-                           "young" <- range(min, 45)) # assign value "young" if age is <= 45
-str(GSS_2010$new.age) # we see that using recode() gives us a variable of type "factor" with two levels "old" and "young"
+GSS_2010$new.age <- recode(GSS_2010$age, # variable we want to recode
+                           "old" <- range(46, max), # assign value "old" if age >= 46
+                           "young" <- range(min, 45)) # assign value "young" if age <= 45
+str(GSS_2010$new.age) # using recode() gives us a variable of type "factor" with two levels "old" and "young"
 table(GSS_2010$new.age) # should be the same as output from Method 1
 table(as.numeric(GSS_2010$new.age)) # this shows us that, by default, recode() sets the numeric values for "young" and "old" to be 1 and 2
 
-# Create variable new.age but with numeric levels 1 (if <= 45 yrs old) and 0 (if > 45 yrs old)
-GSS_2010$new.age <- ifelse(GSS_2010$age <= 45, 1, 0) # same as using ifelse() above but here we assign 1 and 0 instead of "young" and "old"
+# Create variable new.age but with numeric levels 1 (if <= 45 yrs old) and 0 (if
+# > 45 yrs old)
+GSS_2010$new.age <- ifelse(GSS_2010$age <= 45, 1, 0) 
 table(GSS_2010$new.age)
 
 
-# Create variable new.sex, which changes the values of the sex variable from 1 and 2 to 0 and 1
+# Create variable new.sex, which changes the values of the sex variable from 1
+# and 2 to 0 and 1
 table(GSS_2010$sex)
 
   # Method 1: using mapvalues function from plyr package
-GSS_2010$new.sex <- mapvalues(GSS_2010$sex, # object to modify
-                              from = c(1,2), # vector of the values we want to replace
-                              to = c(0,1)) # vector of the new values we want to use
+GSS_2010$new.sex <- mapvalues(GSS_2010$sex,   # variable to modify
+                              from = c(1,2),  # vector of current values 
+                              to = c(0,1))    # vector of replacement values 
 table(GSS_2010$new.sex)
 
   # Method 2: subtraction
-GSS_2010$new.sex <- GSS_2010$sex - 1 # since we want to go values 1 and 2 to values 0 and 1 we can just subtract 1 from the value of every observation 
+    # since we want to go from values 1 and 2 to values 0 and 1 we can just
+    # subtract 1 from the value of every observation
+GSS_2010$new.sex <- GSS_2010$sex - 1 
 table(GSS_2010$new.sex)
 
 
@@ -78,13 +84,17 @@ GSS_2010$new.sex2 <- factor(GSS_2010$sex,
 table(GSS_2010$new.sex2)
 class(GSS_2010$new.sex2)
 levels(GSS_2010$new.sex2) # check what the levels are
-str(GSS_2010$new.sex2) # gives both the class and the levels
+str(GSS_2010$new.sex2)    # gives both the class and the levels
 
 
 
-### Reverse coding ###
 
-# Using ReverseThis function in QMSS package
+# Reverse-coding ----------------------------------------------------------
+# _________________________________________________________________________
+
+# The QMSS package contains a function called ReverseThis
+?ReverseThis
+
 table(GSS_2010$happy)
 GSS_2010$n.happy <- ReverseThis(GSS_2010$happy) 
 table(GSS_2010$n.happy)
@@ -132,3 +142,5 @@ with(GSS_2010, mean(age[sibs == 2 & sex == 1], na.rm = T))
 
 # Count the number males with exactly 2 siblings 
 with(GSS_2010, sum(sibs == 2 & sex == 1, na.rm = T))
+
+

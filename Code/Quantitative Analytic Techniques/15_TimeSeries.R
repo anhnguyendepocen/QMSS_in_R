@@ -90,38 +90,16 @@ by.year.ts <- ts(by.year.ts, start = 1, end = which(by.year.ts$year == 1992))
 
 install.packages("reshape2")
 
-meltMyTS <- function(mv.ts.object, time.var, keep.vars){
-  # mv.ts.object = a multivariate ts object
-  # keep.vars = character vector with names of variables to keep 
-  # time.var = character string naming the time variable
-  require(reshape2)
-  if(missing(keep.vars)) {
-    melt.dat <- data.frame(mv.ts.object)
-  }
-  else {
-    melt.dat <- data.frame(mv.ts.object)[, keep.vars]
-  }
-  melt.dat <- melt(melt.dat, id.vars = time.var)
-  colnames(melt.dat)[which(colnames(melt.dat) == time.var)] <- "time"
-  return(melt.dat)
-}
-
+# there are two functions in QMSS package useful for quickly plotting time
+# series data
+?meltMyTS
+?ggMyTS
 
 keep.vars <- c("year", "n.confinan", "repub_pct","fulltime", 
                "fulltime_pct", "degreelt50_pct")
 plot.dat <- meltMyTS(mv.ts.object = by.year.ts, 
                      time.var = "year", 
                      keep.vars = keep.vars)
-
-
-ggMyTS <- function(df, varlist, ...){
-  # varlist = character vector with names of variables to use
-  require(ggplot2)
-  include <- with(df, variable %in% varlist)
-  gg <- ggplot(df[include,], aes(time, value, colour = variable)) 
-  gg <- gg + geom_line(size = 1.25, ...) + geom_point(size = 3, ...)
-  gg
-} 
 
 ggMyTS(df = plot.dat, varlist = c("fulltime", "n.confinan"))
 ggMyTS(plot.dat, "n.confinan", color = "forestgreen") + ylab("Confidence in Banks")
@@ -181,7 +159,8 @@ durbinWatsonTest(lm.confinan3, max.lag=2)
 
 
 # We don't seem to have serial correlation here, but what if we did?
-  # Solution 1: use Newey & West autocorrelation consistent covariance matrix estimator
+  # Solution 1: use Newey & West autocorrelation consistent covariance matrix
+  # estimator
 coeftest(lm.confinan3, vcov = NeweyWest(lm.confinan3, lag = 1))
 
   # Solution 2: use the first differences

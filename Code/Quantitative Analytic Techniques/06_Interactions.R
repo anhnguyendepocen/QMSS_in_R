@@ -50,12 +50,12 @@ visreg(lm.income, # the model
        xlab = "highest year of school completed", # title for x-axis
        ylab = "Income", # title for y-axis
        by = "female", # plot one line for males and one for females
-       overlay = T, # plot the lines for females and males on the same plot instead of two separate ones
+       overlay = T, # plot lines for females and males on same plot 
        partial = F, # don't plot residuals 
        band = F, # don't plot confidence interval bands,
        legend = F, # don't print legend (we'll add our own)
        cex.axis = 0.7, # shrink the axis annotations (the tick mark labels) a bit
-       bty = "l", # draw an L-shaped box around the plot (instead of default which is a full rectangle)
+       bty = "l", # draw L-shaped box around the plot (instead of full rectangle default)
        line = list(col = c("darkcyan", "lightcoral"))) # colors for the lines  
 legend("top", c("Males", "Females"), # add a legend to the plot
        lwd = 2, col = c("darkcyan", "lightcoral"), bty = "n")
@@ -63,13 +63,13 @@ legend("top", c("Males", "Females"), # add a legend to the plot
   # Or using interaction.plot() function
 interaction.plot(lm.income$model$educ, lm.income$model$female, lm.income$fitted,
                  col =  c("darkcyan", "lightcoral"), # colors for the lines
-                 lty = 1, lwd = 2,
-                 legend = F, # don't print a legend (we'll add our own after b/c the default legends are very ugly)
+                 lty = 1, lwd = 2, # line types and line widths
+                 legend = F, 
                  xlab = "Highest year of school completed", # captions for the axes
                  ylab = "Income")
 legend("bottomright", c("Males", "Females"), col = c("darkcyan", "lightcoral"), lwd = 2)
 
-  # Or for practice we can do the plot manually using the plot() and points() functions
+  # Or for practice we can do the plot manually using plot() and points()
 model.dat <- cbind(lm.income$model, xb = lm.income$fitted)
 with(model.dat,{
   # plot for females 
@@ -112,14 +112,15 @@ xyplot(realrinc ~ educ, groups = female, data = sub,
        auto.key = list(text = c("Males", "Females"), points = F, lines = T))
 
   # Or with ggplot
-ggplot(sub, aes(x = educ, y = realrinc, group = female, colour = female)) + 
-  geom_smooth(method = "lm", fullrange=T, se = F)
+(ggplot(sub, aes(x = educ, y = realrinc, group = female, colour = female)) 
+ + geom_smooth(method = "lm", fullrange=T, se = F))
 
   # Or manually adding each piece of the plot one at a time
 plot(lm.males$model$educ, lm.males$fitted, type = "n", xlab = "Predicted Income")
 abline(lm.males, col = "darkcyan", lwd = 2)
 abline(lm.females, col = "lightcoral", lwd = 2)
-legend("top", c("Males", "Females"), col = c("darkcyan", "lightcoral"), lwd = 2, ncol = 2, bty = "n")
+legend("top", c("Males", "Females"), col = c("darkcyan", "lightcoral"), 
+       lwd = 2, ncol = 2, bty = "n")
 
 
 
@@ -200,7 +201,7 @@ legend("top", c("Not Fundamentalist", "Fundamentalist"),
 ### Centering the data at the mean ###
 
 # Center the education variable & rerun regression with interaction
-sub$center.educ <- scale(sub$educ, center = T, scale = F) # if we set scale = T then R will also divide by the standard deviation
+sub$center.educ <- scale(sub$educ, center = T, scale = F) # setting scale = T will also divide by the standard deviation
 summary(sub$center.educ) # mean should be 0
 summary(lm(evolution ~ center.educ*fundamentalist, data = sub))
 
@@ -254,8 +255,11 @@ m <- with(lm.speduc$model, mean(speduc)); sd <- with(lm.speduc$model, sd(speduc)
 visreg(lm.speduc, "educ", by = "speduc", breaks = c(0,m-sd,m+sd,20), 
        line = list(col = c("orangered", "dodgerblue4", "purple4", "turquoise4")),
        overlay=T, band = F, partial = F, bty = "l", legend = F) 
-# add a legend (we can do it in one step or we can define the legend text first and use it after with the legend() command)
-# below, bquote() allows us to combine mathematical symbols and numeric variables in our legend (see ?bquote and ?plotmath for more on this)
+
+# add a legend (we can do it in one step or we can define the legend text first
+# and use it after with the legend() command) below, bquote() allows us to
+# combine mathematical symbols and numeric variables in our legend (see ?bquote
+# and ?plotmath for more on this)
 legend.text <- c(0, 
                  bquote(bar(x) - sd == .(round(m - sd, 2)) ), 
                  bquote(bar(x) + sd == .(round(m + sd, 2)) ),
@@ -283,8 +287,9 @@ lm.health <- lm(r.health ~ educ*attend + age, data = sub)
 summary(lm.health)
 
 # Plotting the relationship
-visreg(lm.health, "educ", by = "attend", breaks = c(0,4,8), overlay=T, band = F, partial = F,
-       line = list(col = c("darkgreen", "darkorchid","royalblue")), bty = "l", legend = F) 
+visreg(lm.health, "educ", by = "attend", breaks = c(0,4,8), 
+       overlay=T, band = F, partial = F, bty = "l", legend = F,
+       line = list(col = c("darkgreen", "darkorchid","royalblue"))) 
 legend("bottomright", paste("Attend = ", c(0,4,8)), bty = "n", lwd = 2, 
        col = c("darkgreen", "darkorchid","royalblue"), cex = 0.8)
 

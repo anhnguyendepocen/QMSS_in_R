@@ -39,7 +39,7 @@ pd$divorce.easier <- mapvalues(pd$divlaw,
 # quick (crude) check that recode worked (look at first 20 rows)
 with(pd, table(divlaw, divorce.easier))
 
-# get counts and percentages for levels of divorce.easier using custom tab function
+# get counts and percentages for levels of divorce.easier 
 Tab(pd$divorce.easier)
 
 # make indicator variable for "divorced"
@@ -64,9 +64,10 @@ summary(ologit.divorce)
 
 ### OLS with clustered standard errors ###
 
-# first recompute OLS model lm.divorce using plm package (using model="pooling" option)
+# first recompute OLS model lm.divorce using plm package (using model="pooling"
+# option)
 
-# plm is slow with big datasets so take a subset with variables we'll need 
+# plm is slow with big datasets so take a subset with variables we'll need
 vars <- c("idnum","panelwave","divorce.easier","divorced","realinc","educ","race","sex","age")
 pd.sub <- pd[, vars] # same as pd.sub <- subset(pd, select = vars)
 
@@ -76,10 +77,12 @@ summary(lm.divorce3) # should be same as lm.divorce
 
 # calculate degrees of freedom adjustment
 row.ids <- as.numeric(rownames(model.frame(lm.divorce3)))
-  # 1. get number of clusters (omitting individuals with missingness on "divorce.easier" and/or "divorced")
+  # 1. get number of clusters (omitting individuals with missingness on
+  # "divorce.easier" and/or "divorced")
 n <- length(unique(pd.sub$idnum[row.ids]))
 n <- with(pd.sub, length(unique(idnum[row.ids])))
-  # 2. get number of observations (again omitting the same individuals with missingness)
+  # 2. get number of observations (again omitting the same individuals with
+  # missingness)
 N <- length(row.ids)
   # 3. compute degrees of freedom
 df <- (n/(n - 1)) * (N - 1)/lm.divorce3$df.residual
@@ -113,8 +116,8 @@ summary(plm.divorce)
 
 
 # Compare adjusted R^2 from first differences and naive OLS models
-#   note: for models fit with plm the adjusted R^2 can be extracted using summary(model)$r.squared[2]
-#   whereas for models fit with lm we can use summary(model)$adj.r.squared
+#   --for models fit with plm the adjusted R^2 can be extracted using summary(model)$r.squared[2]
+#   --for models fit with lm we can use summary(model)$adj.r.squared
 Adj.R2 <- c(summary(plm.divorce)$r.squared[2],
             summary(lm.divorce)$adj.r.squared) 
 names(Adj.R2) <- c("FD", "OLS")
@@ -131,7 +134,7 @@ x.vars <- c('divorced','I(log(realinc))','educ','as.factor(race)','as.factor(sex
 # collapse=' + ' to insert a + between the variables in x.vars)
 paste(y.var, '~', paste(x.vars, collapse=' + ' )) 
 
-# we can use as.formula() to make this text of the formula a formula object to
+# we can use as.formula() to make this text of the formula a formula object to 
 # use in the plm function
 plm.formula <- as.formula( paste(y.var, '~', paste(x.vars, collapse=' + ' )))
 
@@ -189,7 +192,8 @@ Tab(pd.sub$divorced)
 Tab(pd.sub$d.divorced)
 
 
-# Differences in Xs often have much less variance than the distribution of original Xs
+# Differences in Xs often have much less variance than the distribution of
+# original Xs
 divorce.vars <- c("divorce.easier", "d.divorce.easier", "divorced", "d.divorced")
 sapply(pd.sub[,divorce.vars], var, na.rm = T)
 

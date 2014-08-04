@@ -39,7 +39,8 @@ sub <- GSS[,vars]
 sub$sampyear <- with(sub, sampcode*10^4 + year)
 head(Tab(sub$sampyear), 15)
 
-# Dependent variable: Closeblk = “In general, how close do you feel to blacks,” ranging from not at all close (1) to very close (9)
+# Dependent variable: Closeblk = “In general, how close do you feel to blacks,”
+# ranging from not at all close (1) to very close (9)
 Tab(sub$closeblk)
 
 # make community-level variables
@@ -72,10 +73,11 @@ library(lme4)
 nullmodel <- lmer(closeblk ~ (1 | sampyear), data = sub, REML = FALSE)
 summary(nullmodel) 
 
-# Note that in the output from summary(nullmodel) the Std. Dev. column in the Random Effects section
-#   contains what STATA refers to as sigma_u and sigma_e. STATA also reports rho (fraction of variance due to u_i)
-#   but this is not given in the R output. We'll want to compute it for the models below, so we can write
-#   a function to avoid retyping the same commands multiple times. 
+# Note that in the output from summary(nullmodel) the Std. Dev. column in the
+# Random Effects section contains what STATA refers to as sigma_u and sigma_e.
+# STATA also reports rho (fraction of variance due to u_i) but this is not given
+# in the R output. We'll want to compute it for the models below, so we can
+# write a function to avoid retyping the same commands multiple times.
 
 rho <- function(fit){
   varcor <- VarCorr(fit) # extract the variance components using VarCorr()
@@ -106,8 +108,8 @@ lmer.closeblk1 <- lmer(closeblk ~ white + pct.black + age + n.year + (1 | sampye
 summary(lmer.closeblk1)
 rho(lmer.closeblk1)
 
-# Run a separate regression for each sampyear, storing intercept, coefficient on white, and 
-# the average of the fitted values.
+# Run a separate regression for each sampyear, storing intercept, coefficient on
+# white, and the average of the fitted values.
   # get all unique values of sampyear
 samps <- unique(sub$sampyear) 
 regs <- sapply(
@@ -159,7 +161,8 @@ summary(lmer.closeblk2)
 # Likelihood ratio test via anova()
 anova(lmer.closeblk1, lmer.closeblk2) # look at Chisq stat and p-value
 
-# Or we can do the likelihood ratio test manually to get a sense for how the computation is done
+# Or we can do the likelihood ratio test manually to get a sense for how the
+# computation is done
   # the Chisq statistic is computed as (-2)*loglikelihood(model1) + 2*loglikelihood(model2)
   # or equivalently as deviance(model1) - deviance(model2)
 chisq <- deviance(lmer.closeblk1) - deviance(lmer.closeblk2)
@@ -226,8 +229,9 @@ summary(
       index = c("idnum", "panelwave"), model = "random"))
 
   # cross-level interactions, random slope & intercept
-lmer.satfin <- lmer(n.satfin ~ I(log(realinc))*mean.lnrealinc + as.factor(max.race) + as.factor(sex) 
-                    + as.factor(panelwave) + (1 + I(log(realinc)) | idnum), data = sub)
+lmer.satfin <- lmer(n.satfin ~ I(log(realinc))*mean.lnrealinc + as.factor(max.race) 
+                    + as.factor(sex) + as.factor(panelwave) 
+                    + (1 + I(log(realinc)) | idnum), data = sub)
 summary(lmer.satfin)
 
 

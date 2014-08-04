@@ -30,9 +30,11 @@ load("GSS.RData")
 # _________________________________________________________________________
 
 
-### Does opposite-party president affect Republican happiness more than Democratic happiness? ###
+### Does opposite-party president affect Republican happiness more than
+### Democratic happiness? 
 
-vars <- c("happy", "partyid", "year", "age", "educ", "sex", "realinc", "polviews", "race", "region")
+vars <- c("happy", "partyid", "year", "age", "educ", "sex", 
+          "realinc", "polviews", "race", "region")
 sub <- GSS[, vars]
 Tab(sub$happy)
 sub$n.happy <- ReverseThis(sub$happy)
@@ -70,7 +72,8 @@ with(by.year, plot(year, mean.dems, bty = "l", type = "l", lwd = 2, col = "blue"
      ylim = c(2,2.5), xlab = "Year", ylab = "Mean happiness score", xaxt = "n"))
 axis(side = 1, at = seq(1970, 2015, 5), labels = T, las = 2)
 lines(by.year$year, by.year$mean.repubs, col = "red", lwd = 2)
-legend("top", c("Republicans", "Democrats"), lwd = 1, col = c("red", "blue"), bty="n", ncol=2)
+legend("top", c("Republicans", "Democrats"), lwd = 1, 
+       col = c("red", "blue"), bty="n", ncol=2)
 
 
 
@@ -102,11 +105,14 @@ library(AER)
 iv.attend <- ivreg(n.attend ~ 
   # first write equation without instrument (so educ instead of paeduc)
                      educ + year + age + as.factor(relig) + as.factor(region) + as.factor(dwelown) 
-  # then a vertical bar followed by thesame equation again but this time with the instrument (so paeduc instead of educ)
+  # then a vertical bar followed by thesame equation again but this time with
+  # the instrument (so paeduc instead of educ)
                    | paeduc + year + age + as.factor(relig) + as.factor(region) + as.factor(dwelown),
                    data = sub)
 summary(iv.attend)
-iv.coef <- coef(summary(iv.attend))[-1,1:2] # extract estimates and standard errors (without the intercept)
+
+# extract estimates and standard errors (without the intercept)
+iv.coef <- coef(summary(iv.attend))[-1,1:2] 
 
   # plot coefficients from ols and iv models
     # install.packages("arm")
@@ -116,8 +122,9 @@ coefplot(iv.coef[,1], iv.coef[,2], offset = .2, intercept = F,
          varnames = c("educ","year","age", substring(row.names(iv.coef)[-c(1:3)],10), var.las = 2, vertical = F))
 coefplot(lm.attend, add = TRUE, col = "red")
 
-# avoiding weak instruments
-  # add diagnostics = T to summary command to get results of several diagnostic tests including:
+# Avoiding weak instruments
+  # add diagnostics = T to summary command to get results of several diagnostic
+  # tests including:
     # F test of the first stage regression for weak instruments
     # Wu-Hausman test for endogeneity
 summary(iv.attend, diagnostics = T) 

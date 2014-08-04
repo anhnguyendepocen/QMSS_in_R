@@ -37,7 +37,8 @@ Tab(pd$n.satfin)
 with(pd, table(satfin, n.satfin))
 
 
-# make new variable "realinc10k" for family income in constant dollars in units of $10,000
+# make new variable "realinc10k" for family income in constant dollars in units
+# of $10,000
 pd$realinc10k <- pd$realinc/10^4
 
 # make subset of data with needed variables for faster processing
@@ -61,8 +62,9 @@ summary(fd.satfin)
 # From First Differences to Fixed Effects ---------------------------------
 # _________________________________________________________________________
 
-# take only obs for individuals without missingness on "n.satfin" and "realinc10k" for
-# both waves 1 and 2 and drop all obs from panelwave 3 (for demonstration purposes only)
+# take only obs for individuals without missingness on "n.satfin" and
+# "realinc10k" for both waves 1 and 2 and drop all obs from panelwave 3 (for
+# demonstration purposes only)
 good_ids1 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==1)])
 good_ids2 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==2)])
 temp <- subset(pd.sub, idnum %in% good_ids1 & idnum %in% good_ids2 & panelwave < 3)
@@ -119,7 +121,7 @@ pd.sub <- ddply(pd.sub, "idnum", mutate,
 Tab(pd.sub$d.married)
 Tab(pd.sub$d.marhomo)
 
-# Note: the firstD function in QMSS package can be used in different ways. we
+# Note: the firstD function in QMSS package can be used in different ways. we 
 # could also have created the d.married and d.marhomo like this
 pd.sub$d.married <- firstD(married, idnum, pd.sub) # or with(pd.sub, firstD(married, idnum))
 pd.sub$d.marhomo <- firstD(marhomo, idnum, pd.sub) # or with(pd.sub, firstD(marhomo, idnum))
@@ -156,7 +158,8 @@ phtest(fe.marhomo, re.marhomo)
 
 
 ### Bigger random effects model ###
-#create indicator variable for race==black
+
+# create indicator variable for race==black
 pd.sub$black <- pd.sub$race==2
 
 re.marhomo2 <- plm(marhomo ~ married + panelwave + sex + black,

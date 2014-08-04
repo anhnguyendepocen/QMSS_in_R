@@ -99,8 +99,11 @@ library(rdd)
 rd.godoc <- RDestimate(n.godoc ~ age, data = sub, cutpoint = 65)
 summary(rd.godoc)
 plot(rd.godoc)
-RDplot(rd.godoc, col = c("blue", "green"), pts = T, xlab = "Age") # use custom RDplot function in QMSS package
+
+# or use custom RDplot function in QMSS package
 ?RDplot
+RDplot(rd.godoc, col = c("blue", "green"), pts = T, xlab = "Age") 
+
 
 # logit
 logit.godoc <- glm(n.godoc ~ age + age63 + age64 + age65 + age66 + age67, 
