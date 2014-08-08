@@ -267,23 +267,48 @@ summary(lm(educ ~ f.region, data = GSS_2010)) # now we don't need to relevel ins
 # Inside multiple regression ----------------------------------------------
 # _________________________________________________________________________
 
-# For demonstration purposes only, take subset of GSS_2010 without missingness
-# on educ and prestg80 and with educ at least 10
-sub <- subset(GSS_2010, educ>=10 & !is.na(educ) & !is.na(prestg80), select = c(prestg80, educ, sex))
-# Take a random sample of 10 individuals (for demonstration purposes)
-samp <- sub[sample(nrow(sub),10), ]
+# install.packages("scatterplot3d")
+library(scatterplot3d)
 
-# Make indicator for male
-samp$male <- samp$sex == 1
+sample_dat <- function(){
+  # For demonstration purposes only, take subset of GSS_2010 without missingness
+  # on educ and prestg80 and with educ at least 10
+  sub <- subset(GSS_2010, educ>=10 & !is.na(educ) & !is.na(prestg80), 
+                select = c(prestg80, educ, sex))
+  # Take a random sample of 10 individuals (for demonstration purposes)
+  samp <- sub[sample(nrow(sub),10), ]
+  
+  # Make indicator for male
+  samp$male <- samp$sex == 1
 
-# We don't need to do this, but for future reference if we wanted to keep the
-# male variable but drop the original sex variable we can use NULL like
-samp$sex <- NULL
+  # We don't need to do this, but for future reference if we wanted to keep the
+  # male variable but drop the original sex variable we can use NULL like
+  samp$sex <- NULL
+  
+  return(samp)
+}  
 
-# Fit a plane
-# install.packages("rgl", "car")
-library(car)
-scatter3d(prestg80 ~ educ + male, data = samp, surface.alpha=0.20)
+scatter3d_my_sample <- function(samp){
+  # 3d scatter plots 
+  scatter_3D <- with(samp, scatterplot3d(educ,male,prestg80, pch=16, highlight.3d=TRUE,
+                                         type="h", main="3D Scatterplot"))
+  # add a fitted plane
+  plane <- lm(prestg80 ~ educ + male, data = samp) 
+  scatter_3D$plane3d(plane, lty.box = "solid")
+}
+
+# we can now run the scatter3d_my_sample function with the sample_dat function
+# as the argument to get a 3D scatter plot and fitted plane. try running it
+# several times to see the plots corresponding to different random samples
+scatter3d_my_sample(sample_dat())
+scatter3d_my_sample(sample_dat())
+scatter3d_my_sample(sample_dat())
+scatter3d_my_sample(sample_dat())
+
+
+# now store a sample to use for the rest of the demonstration
+samp <- sample_dat()
+scatter3d_my_sample(samp)
 
 
 # Correlation matrix
