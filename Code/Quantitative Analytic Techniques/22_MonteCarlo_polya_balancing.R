@@ -12,7 +12,7 @@
 # In the Polya process any proportion of reds is equally likely
 # In the Balancing process the long-run proportion of reds is 1/2
 
-# Interestingly, they both have an expected proportion of heads of 1/2 
+# They both have an _expected_ proportion of heads of 1/2 
 
 
 # POLYA PROCESS -----------------------------------------------------------
