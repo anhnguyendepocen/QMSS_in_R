@@ -83,7 +83,7 @@ levs <- length(unique(model.dat$partyid)) # the number of unique values of party
 display.brewer.pal(n = levs, "RdBu") # this is good but we want blue on the left and red on the right
 my.palette <- brewer.pal(n = levs, "RdBu") # assign the color palette to my.palette
 my.palette <- rev(my.palette) # reverse the order of the colors so blue is on the left
-image(1:levs, 1, as.matrix(1:levs),col=my.palette, axes = F) # much better
+image(1:levs, 1, as.matrix(1:levs), col = my.palette, axes = F) # much better
   
   # make labels for the bars
 bar.labs <- c("strong dem","dem","ind (dem)","ind","ind (rep)", "rep","strong rep")
@@ -97,9 +97,12 @@ with(model.dat,
 
 
 # Barplot with ggplot
-dat <- ddply(model.dat, "partyid", summarise, mean.attend = mean(attend))
-g <- ggplot(dat, aes(x = partyid, y = mean.attend, fill = factor(partyid))) + geom_bar(stat = "identity")
-g + scale_fill_manual(values = my.palette)
+gg.dat <- ddply(model.dat, "partyid", summarise, mean.attend = mean(attend))
+g <- ggplot(gg.dat, aes(x = partyid, y = mean.attend, fill = factor(partyid))) 
+colors_and_labels <- scale_fill_manual(values = my.palette, labels = bar.labs, name = "PartyID")
+g + geom_bar(stat = "identity") + colors_and_labels
+
+
 
 
 
@@ -111,9 +114,11 @@ lm.attend2 <- lm(attend ~ partyid + I(partyid^2), data = sub, partyid < 7)
 summary(lm.attend2)
 
 # Plotting the curve
-with(lm.attend2, curve(coefficients[1] + coefficients[2]*x + coefficients[3]*x^2, 
+with(lm.attend2, curve(coefficients%*%rbind(1,x,x^2), 
                        xlab = "partyid", ylab = "",
-                       xlim = c(0,6), ylim = c(3,5), lwd = 2, col = "darkblue"))
+                       xlim = c(0,6), ylim = c(3,5), 
+                       lwd = 2, col = "darkblue"))
+
 
 
 
@@ -133,15 +138,15 @@ par(mfrow = c(2,1))
 
 # Compare distributions of realrinc and log(realrinc)
   # histogram of realrinc
-truehist(realrinc, col = "skyblue", yaxt = "n", cex.axis = 0.8) 
+truehist(realrinc, col = "maroon", yaxt = "n", cex.axis = 0.8) 
   # add normal density curve
 curve(dnorm(x, mean = mean(realrinc), sd = sd(realrinc)), 
-      lwd = 2, col = "orangered", add=T)
+      lwd = 2, col = "skyblue", add=T)
   # histogram of log(realrinc)
-truehist(log(realrinc), col = "skyblue", yaxt = "n", cex.axis = 0.8)
+truehist(log(realrinc), col = "maroon", yaxt = "n", cex.axis = 0.8)
   # add normal density curve
 curve(dnorm(x, mean = mean(log(realrinc)), sd = sd(log(realrinc))), 
-      lwd = 2, col = "orangered", add=T)
+      lwd = 2, col = "skyblue", add=T)
 # reset plotting layout
 par(mfrow=c(1,1)) 
 

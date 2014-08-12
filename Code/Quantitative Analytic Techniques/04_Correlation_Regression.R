@@ -35,8 +35,10 @@ load("GSS_2010.RData")
 # Take the subset of GSS_2010 without missings on educ and prestg80 and with
 # educ at least 10 (for demonstration purposes)
 sub <- subset(GSS_2010, educ>=10 & !is.na(educ) & !is.na(prestg80))
+
 # Take a random sample of 10 individuals (for demonstration purposes) and
 # display and plot their values for educ & prestg80
+set.seed(123456) # for reproducibility 
 samp <- sub[sample(nrow(sub),10), c("id", "educ", "prestg80")]
 samp <- arrange(samp, educ, prestg80, id)  # sort by educ then prestg80 then id       
 samp
@@ -74,7 +76,7 @@ intercept
 # scatterplot with regression line extended beyond the data
   # plot the points
 with(samp, plot(educ, prestg80, 
-                xlim = c(0, max(samp$educ) + 10), # entend x-axis past the maximum educ value by 10
+                xlim = c(0, max(educ) + 10), # entend x-axis past max educ value by 10
                 ylim = c(0, intercept + slope*(max(educ) + 10)), # extend the y-axis 
                 pch = 19, 
                 col = "skyblue")) 
@@ -88,8 +90,8 @@ abline(a = intercept, b = slope,
 with(samp, arrows(
   x0 = range(educ), # x-coordinates of points FROM which to draw.
   y0 = intercept + slope*range(educ), # y-coordinates of points FROM which to draw.
-  x1 = c(0, max(educ) + 10), # x-coordinates of points TO which to draw.
-  y1 = intercept + slope*c(0, max(educ) + 10), # y-coordinates of points TO which to draw.
+  x1 = c(min(educ) - 5, max(educ) + 5), # x-coordinates of points TO which to draw.
+  y1 = intercept + slope*c(min(educ) - 5, max(educ) + 5), # y-coordinates of points TO which to draw.
   length = 0.2, # length of the edges of the arrow head (in inches)
   lwd = 2, 
   col = "maroon"))

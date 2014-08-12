@@ -67,18 +67,11 @@ estimates <- sapply(0:15, FUN = function(i){
   mean(replicate(2^i, cardsExperiment() == "RED"))
 })
 
-plot(0, type = "n", xlim = c(0,16), ylim = c(min(estimates), max(estimates)), 
-     bty = "l", xlab = "Number of Replications", axes = F,
-     ylab = "Estimated Probability")
-
-lines(1:16, estimates, col = "turquoise4", lwd = 2)
-points(1:16, estimates, pch = 18, col = "purple4")
-axis(side = 1, col = "orangered", las = 2,
-     pos = 0.5, at = seq(0,16,4), 
-     labels = paste0("2^", seq(0,16,4)))
-axis(side = 2, col = "orangered", las = 2,
-     pos = 0.5, at = c(0.5, 1), labels = T)
-
+library(ggplot2)
+xlab <- xlab("Number of replications (in powers of 2)")
+ylab <- ylab("Estimated probability")
+q <- qplot(x = 0:15, y = estimates, geom = c("line", "point"))
+q + xlab + ylab
 
 
 # We can also modify our function to allow the user to pick the size of the

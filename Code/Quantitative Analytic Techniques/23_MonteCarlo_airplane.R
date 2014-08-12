@@ -67,14 +67,14 @@ airplane <- function(N){
 
 # run 1000 simulations for a plane with 100 seats (and 100 passengers)
 airplane.dat100 <- replicate(10^3, airplane(100))
-table(airplane.dat)
+table(airplane.dat100)
 mean(airplane.dat100 == 100)
 
 # it turns out that it doesn't matter how many seats the plane has: the last
 # passenger always gets either the first seat or the last seat, and with equal
 # probability!!
 airplane.dat27 <- replicate(10^3, airplane(N = 27))
-table(airplane.dat)
+table(airplane.dat27)
 mean(airplane.dat27 == 27)
 
 
@@ -85,13 +85,11 @@ airplane.dat <- sapply(1:15, FUN = function(n){
   mean(replicate(2^n, airplane(N = 25)) == 25) # we'll use a 25-seat plane, but it doesn't matter
 })
 
-plot(NULL, type = "n", xlim = c(1, 15), ylim = c(0, 1), 
-     bty = "l", axes = F, xlab = "Number of Replications", ylab = "Proportion", 
-     main = "How often does last passenger get last seat?")
-lines(1:15, airplane.dat, col = "skyblue", lwd = 2)
-points(1:15, airplane.dat, pch = 18, col = "skyblue4")
-axis(side = 1, col = "maroon4", las = 2,
-     pos = 0.5, at = seq(0,15,5), 
-     labels = paste0("2^", seq(0,15,5)))
-axis(side = 2, col = "maroon4", las = 2,
-     pos = 0.5, at = c(0, 0.5, 1))
+library(ggplot2) 
+hline <- geom_hline(yintercept = 0.5, color = "red", linetype = 2)
+xlab <- xlab("Number of replications (in powers of 2)")
+ylab <- ylab("Estimated probability")
+title <- ggtitle("How often does last passenger get the last seat?")
+q <- qplot(x = 1:15, y = airplane.dat, geom = c("line", "point"), ylim = c(0,1)) 
+q + title + xlab + ylab + hline 
+

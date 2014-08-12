@@ -270,7 +270,17 @@ summary(lm(educ ~ f.region, data = GSS_2010)) # now we don't need to relevel ins
 # install.packages("scatterplot3d")
 library(scatterplot3d)
 
-sample_dat <- function(){
+# define a function to take a random sample of GSS_2010 without missingness on
+# educ and prestg80 and with educ at least 10 (for demonstration purposes)
+sample_dat <- function(rng.seed = sample(.Machine$integer.max, 1)){
+  # sample(.Machine$integer.max, 1) will pick a random integer between 1 and the
+  # largest integer that can be represented on the machine
+  
+  # set the seed for the pseudo random number generator. by default this will be
+  # sample(.Machine$integer.max, 1), but for reproducibility purposes we can
+  # specify rng.seed to be whatever we want
+  set.seed(rng.seed)
+  
   # For demonstration purposes only, take subset of GSS_2010 without missingness
   # on educ and prestg80 and with educ at least 10
   sub <- subset(GSS_2010, educ>=10 & !is.na(educ) & !is.na(prestg80), 
@@ -288,6 +298,8 @@ sample_dat <- function(){
   return(samp)
 }  
 
+# define a function to create a 3D scatterplot and add a fitted plane using the
+# output from the sample_dat function
 scatter3d_my_sample <- function(samp){
   # 3d scatter plots 
   scatter_3D <- with(samp, scatterplot3d(educ,male,prestg80, pch=16, highlight.3d=TRUE,
@@ -300,14 +312,15 @@ scatter3d_my_sample <- function(samp){
 # we can now run the scatter3d_my_sample function with the sample_dat function
 # as the argument to get a 3D scatter plot and fitted plane. try running it
 # several times to see the plots corresponding to different random samples
-scatter3d_my_sample(sample_dat())
+
+scatter3d_my_sample(sample_dat()) 
 scatter3d_my_sample(sample_dat())
 scatter3d_my_sample(sample_dat())
 scatter3d_my_sample(sample_dat())
 
 
 # now store a sample to use for the rest of the demonstration
-samp <- sample_dat()
+samp <- sample_dat(rng.seed = 123456) # setting the seed for reproducibility
 scatter3d_my_sample(samp)
 
 

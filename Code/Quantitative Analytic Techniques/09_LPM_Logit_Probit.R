@@ -61,9 +61,9 @@ summary(lpm.muslim2)
 
 ### Among 13-17 olds, how many have had a romantic relationship? ###
 
-# Load Stata .dta file using foreign package
+# Load Stata .dta file using read.dta function in foreign package
 library(foreign)
-AdHealth <- read.dta("Data/adHealth.dta")
+AdHealth <- read.dta("adHealth.dta")
 AdHealth <- with(AdHealth, # Take needed variables and give them meaningful names
                  data.frame(relationship = H1RR1, 
                             attractive = H1IR1,  
@@ -125,7 +125,7 @@ with(sub, table(smoking, romance))
 lpm.romance <- lm(romance ~ attractive + smoking, data = sub)
 summary(lpm.romance)
 
-sub$yhat <- lpm.romance$fitted # or equivalently sub$yhat <- predic(lpm.romance)
+sub$yhat <- lpm.romance$fitted # or equivalently sub$yhat <- predict(lpm.romance)
 sub$resids <- lpm.romance$residuals
 
 # graphing it
@@ -137,10 +137,10 @@ abline(lm(yhat ~ attractive, data = sub), lwd = 2, col = "navyblue")
 
 
 # Normality of errors assumption is violated 
-truehist(sub$resids, # histogram of residuals 
-         col = "skyblue", yaxt = "n", 
-         cex.axis = 0.8, xlab = "residuals") 
-curve(dnorm(x, mean = mean(sub$resids), sd = sd(sub$resids)), # add normal density curve
+  # histogram of residuals 
+truehist(sub$resids, col = "skyblue", yaxt = "n", cex.axis = 0.8, xlab = "residuals") 
+  # add normal density curve
+curve(dnorm(x, mean = mean(sub$resids), sd = sd(sub$resids)), 
       lwd = 2, col = "orangered", add=T)
 
 # Fitted values can be outside [0,1]
@@ -196,7 +196,7 @@ exp(coef(logit.romance))
 # Confidence intervals for the odds ratios
 exp(confint(logit.romance))
 
-# I've also combined these steps for getting the odds ratios and CIs in a function logitOR
+# For future use these steps are combined in a function in the QMSS package
 ?logitOR
 logitOR(logit.romance) # gives 95% confidence intervals by default
 logitOR(logit.romance, intercept = FALSE) # setting intercept = FALSE drops the intercept
@@ -212,7 +212,7 @@ exp(x.vals%*%b)/(1 + exp(x.vals%*%b)) # predicted probability (we use the matrix
 x.vals <- c(1,5,1) # x-values for a different person attractive = 5 & smoking = 1
 exp(x.vals%*%b)/(1 + exp(x.vals%*%b)) # predicted probability
 
-  # manually using plogis()
+  # same as using plogis()
 x.vals <- c(1,1,0)
 plogis(x.vals%*%b)
 x.vals <- c(1,5,1) 
@@ -222,8 +222,8 @@ plogis(x.vals%*%b)
 predict(logit.romance, 
         type = "response", # type = "link" would give us predicted log-odds instead
         newdata = data.frame(  # enter the data (i.e. x values) we want to use for the predictions 
-          smoking = c(0,1), # here we predict for the same two people as above, one with
-          attractive = c(1,5)))            # smoking=0, attractive=1 and the other with values of 1 and 5
+          smoking = c(0,1), # here we predict for the same two people as above
+          attractive = c(1,5)))            
 
 
 ### Bigger model ###
@@ -234,58 +234,63 @@ logit.romance2 <- glm(romance ~ attractive + smoking + momEduc + age + noClubs,
                       data = sub.big, family = binomial)  
 summary(logit.romance2)
 
-# Predicted probabilities
 
-  # predicted probability at each value of smoking with other vars fixed 
-pred.dat <- with(sub.big, 
-                 data.frame( # make data frame with the values we want
-                   smoking = 0:1, 
-                   attractive = median(attractive),
-                   momEduc = median(momEduc),
-                   age = median(age),
-                   noClubs = 0 ))
-preds1 <- cbind(pred.dat, # combine the data frame with predicted probabilities
-                predicted.prob = predict(logit.romance2, type = "response", newdata = pred.dat))
+# Predicted probabilities: at each value of smoking with other vars fixed 
+  # make data frame with the values we want
+pred.dat <- with(sub.big, data.frame( 
+  smoking = 0:1, 
+  attractive = median(attractive),
+  momEduc = median(momEduc),
+  age = median(age),
+  noClubs = 0 ))
+
+  # combine the data frame with predicted probabilities
+preds1 <- cbind(pred.dat, predicted.prob = predict(logit.romance2, type = "response", 
+                                                   newdata = pred.dat))
 print(preds1, digits = 3)
 
-  # now let smoking AND age vary
-pred.dat <- with(sub.big, 
-                 expand.grid( # expand.grid() creates a data frame from all combinations of the supplied vectors
+# Predicted probabilities: letting smoking AND age vary
+pred.dat <- with(sub.big,
+  # use expand.grid() to create data frame with all combinations of the supplied vectors
+                 expand.grid( 
                    age = min(age):max(age),
                    smoking = 0:1,
                    attractive = median(attractive),
                    momEduc = median(momEduc),
                    noClubs = 0))
-preds2 <- cbind(pred.dat, 
-                predicted.prob = predict(logit.romance2, type = "response", newdata = pred.dat))
+preds2 <- cbind(pred.dat, predicted.prob = predict(logit.romance2, type = "response", 
+                                                   newdata = pred.dat))
 print(preds2, digits = 3)
 
-  # predicted probability at each value of smoking at both the min and max values of attractive
+# Predicted probabilities: at each value of smoking and both the min and max
+# values of attractive
 pred.dat <- with(sub.big, expand.grid( 
   smoking = 0:1,
   attractive = range(attractive),
   momEduc = median(momEduc),
   age = median(age),
   noClubs = 0))
-preds3 <- cbind(
-  pred.dat, 
-  predicted.prob = predict(logit.romance2, type = "response", newdata = pred.dat))
+preds3 <- cbind(pred.dat, predicted.prob = predict(logit.romance2, type = "response", 
+                                                   newdata = pred.dat))
 print(preds3, digits = 3)
 
-  # predicted probs & 95% intervals for all combinations of attractive & smoking found in the data
+# Predicted probabilities AND 95% intervals for all combinations of attractive &
+# smoking found in the data
 pred.dat <- with(sub.big, expand.grid( 
   attractive = sort(unique(attractive)),
   smoking = 0:1, 
   momEduc = median(momEduc),
   age = median(age),
   noClubs = 0))
-  
-preds4 <- cbind(pred.dat, 
-                predict(logit.romance2, 
-                        type = "link", # if we want to compute CIs we first need to get the predictions on the log-odds scale
+
+  # to compute CIs we first get the predictions on the log-odds scale using type = "link"
+preds4 <- cbind(pred.dat, predict(logit.romance2, 
+                        type = "link", 
                         se = T, # and we need the standard errors of the predictions
                         newdata = pred.dat))
-preds4 <- within(preds4, { # now we can convert them into probabilities and intervals around the predicted probabilities
+  # now we can convert them from log-odds to probabilities and intervals around the
+  # predicted probabilities
+preds4 <- within(preds4, { 
   PredictedProb <- plogis(fit)
   lower.bound <- plogis(fit - 1.96*se.fit)
   upper.bound <- plogis(fit + 1.96* se.fit)
@@ -295,8 +300,9 @@ preds4 <- preds4[,-c(6:8)]
 print(preds4, digits = 3)
 
 
-# I've also combined these steps for getting the predicted probabilities and confidence intervals
-# in a function called predProb in the QMSS package
+# For future use, these steps for getting the predicted probabilities and
+# confidence intervals and combined in in a function called predProb in the QMSS
+# package
 ?predProb
 predProb(logit.romance2, predData = pred.dat)
 predProb(logit.romance2, predData = pred.dat, ci = F)
@@ -331,10 +337,10 @@ print(preds5, digits = 3)
 # _________________________________________________________________________
 
 # Plot of standard normal CDF
-curve(pnorm, -4, 4, col = "navyblue", lwd = 2, main = "CDF, Std Normal Dist")
+curve(pnorm, -4, 4, col = "orangered", lwd = 2, main = "CDF, Std Normal Dist")
 
-# Plot of the inverse cdf 
-curve(qnorm, 0, 1, col = "orangered", lwd = 2, main = "Inverse CDF, Std Normal Dist")
+# Plot of the inverse CDF 
+curve(qnorm, 0, 1, col = "seagreen", lwd = 2, main = "Inverse CDF, Std Normal Dist")
 
 # Logit vs probit
 curve(pnorm, -4, 4, col = "orangered", lwd = 2)
@@ -347,10 +353,10 @@ curve(plogis(1.7*x), col = "navyblue", lty = 2, add = T)
 legend("right", c("Probit", "Logit"), lwd = c(2,1), lty = c(1,2), col = c("orangered","navyblue"), bty="n")
 
 
-# Probit model 
+# Probit model (using glm with family = binomial(link = probit))
 probit.romance <- glm(romance ~ attractive + smoking, 
                       data = sub, 
-                      family = binomial(link=probit)) # set link = probit
+                      family = binomial(link = probit)) 
 summary(probit.romance)
 
 # predicted probability for non-smoker with an attractiveness score of 1
@@ -417,24 +423,18 @@ visreg(logit.colhomo2, "educ", by = "n.fund",
 
 
 
-# Plot predicted probabilities by level of n.fund for different values of age
-plot.by.age <- function(AGE){
-  visreg(logit.colhomo2, "educ", by = "n.fund", 
-         overlay = T, partial = F, band = F, legend = F,
-         xlab = "", ylab = "", 
-         line = list(col = c("navyblue", "maroon3", "darkcyan")), 
-         cond = list(age = AGE), print.cond = T,
-         scale = "response")
-  legend("top", legend = paste("Age =",AGE), bty = "n", cex = 1.25)
-}
+# Plot predicted probabilities for each level of educ by level of n.fund for 
+# age = 20, 50, and 80
+  # make data frame of the values at which to predict
+pred.dat <- na.omit(with(GSS_2010, expand.grid(
+  educ = unique(educ), n.fund = unique(n.fund), age = c(20,50,80)
+  )))
+  # get predicted probabilities using predProb from QMSS package
+preds <- predProb(logit.colhomo2, predData = pred.dat)
 
-par(mfrow = c(1,3), oma = c(1.5,1.5,1.5,0))
-for(AGE in c(20, 50, 80)){  # we'll loop over the different age values (here we use 20, 50 and 80)
-  plot.by.age(AGE) # use the newly created function
-}
-# instead of the loop we could also have used sapply(X = c(20,50,80), FUN = plot.by.age)
-
-mtext(text = paste("----", levels(GSS_2010$n.fund)), col = c("navyblue","maroon3", "darkcyan"),
-      at = c(0.25, .55, 0.8), outer = T, line = -1)
-mtext(text = "Predicted probability", side = 2, outer = T)
-mtext(text = "Highest year of school completed", side = 1, outer = T, line = -1)
+  # set up ggplot
+gg_preds <- ggplot(preds, aes(x = educ, y = PredictedProb, group = n.fund, color = n.fund))             
+  # use facet_grid to make a different plot for each of the age values
+gg_preds <- (gg_preds + geom_line() 
+             + facet_grid(. ~ age, labeller = function(age,value) paste(age,"=",value)))
+gg_preds

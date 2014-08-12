@@ -67,14 +67,6 @@ mean(polya.prop.red)
 mean(balancing.prop.red)
 
 # plots
-plot(polya.prop.red, type = "n",  bty = "l", 
-     xlab = "simulation", ylab = "proportion of reds",
-     sub = paste("number of draws =", N), cex.sub = 0.8)
-lines(polya.prop.red, lwd = 1.5, col = "pink3") 
-lines(balancing.prop.red, lwd = 1.5, col = "darkred")
-legend("top", c("Polya", "Balancing"), ncol = 1, bg = "lightgray",
-       col = c("pink3", "darkred"), lwd = 2, seg.len = 1)
-
 library(ggplot2)
 g <- ggplot(NULL, aes(x = 1:100, y = polya.prop.red)) + labs(list(x = "Simulation", y = "Proportion"))
 g <- g + geom_line(color = "pink3") + geom_line(aes(y = balancing.prop.red), color = "darkred")
