@@ -4,7 +4,7 @@
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/19/2014
+
 
 
 # Setup -------------------------------------------------------------------
@@ -15,10 +15,9 @@ setwd("INSERT PATH TO DIRECTORY")
 
 # Load some packages
 library(QMSS)
-library(ggplot2)
 library(memisc)
 library(plyr)
-library(visreg)
+
 
 # Load the cumulative GSS and the GSS_2010 dataset 
 load("GSS.RData")

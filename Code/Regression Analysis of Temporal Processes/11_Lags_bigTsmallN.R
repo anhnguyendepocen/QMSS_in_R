@@ -11,7 +11,6 @@
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/29/2014
 
 
 
@@ -94,11 +93,15 @@ coefs <- coefs[-c(1,6)]
 coefs <- round(coefs,2)
 coefs
 coef.names <- paste0("b_",0:3)
-qplot(x = coef.names, coefs, geom="bar", stat="identity", fill = coef.names)
+q_fading <- qplot(x = coef.names, coefs, geom="bar", 
+                  stat="identity", fill = coef.names)
+q_fading + ggtitle("The fading out of lags")
 
 # Cumulative lags
 coef.names <- paste0("c.b_",0:3)
-qplot(x = coef.names, y = cumsum(coefs), geom="bar", stat="identity", fill = coef.names)
+q_cumulative <- qplot(x = coef.names, y = cumsum(coefs), geom="bar", 
+                      stat="identity", fill = coef.names)
+q_cumulative + ggtitle("Cumulative lags")
 
 # Finite distributed lag process w/ diffs
 dynlm(d(pray) ~ d(L(attend,0:3)), data = by.year.ts)
@@ -171,8 +174,9 @@ g_mar.overall <- ggplot(by.year.region, aes(x = year, y = marriedlt50_pct))
 g_mar.overall + stat_smooth(size = 2) 
 
 # plot regional trends with loess smoothing
-g_mar.region <- ggplot(by.year.region, aes(x = year, y = marriedlt50_pct, group = region)) 
-g_mar.region + geom_smooth(aes(color = factor(region)), se = F)
+g_mar.region <- ggplot(by.year.region, aes(x = year, y = marriedlt50_pct, 
+                                           group = region, color = factor(region))) 
+g_mar.region + stat_smooth(se = F) 
 
 
 

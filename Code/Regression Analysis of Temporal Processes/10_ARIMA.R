@@ -10,7 +10,6 @@
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/25/2014
 
 
 
@@ -78,14 +77,16 @@ save(by.year.ts, file = "married_degree_TS.RData")
 # make plots
 keep.vars <- c("year", "marriedlt50_pct", "degreelt50_pct")
 plot.dat <- meltMyTS(by.year.ts, time.var = "year", keep.vars = keep.vars)
+rotate_xlabs <- theme(axis.text.x = element_text(angle = 90))  
 
 g_Mar <- ggMyTS(plot.dat, "marriedlt50_pct") + ylab("Pct married (under 50 yrs old)")
-g_Mar + theme(axis.text.x = element_text(angle = 90))  
+g_Mar + rotate_xlabs
+
 g_Deg <- ggMyTS(plot.dat, "degreelt50_pct") + ylab("Pct with BA (under 50 yrs old)")
-g_Deg + theme(axis.text.x = element_text(angle = 90))  
+g_Deg + rotate_xlabs
 
 g_MarDeg <- ggMyTS(df = plot.dat, varlist = c("marriedlt50_pct", "degreelt50_pct"))
-g_MarDeg + theme(axis.text.x = element_text(angle = 90))  
+g_MarDeg + rotate_xlabs 
 
 
 # correlations
@@ -222,12 +223,17 @@ fatal.unemp <- rename(fatal.unemp, replace = c("umempl" = "unempl"))
 plot.dat <- summarise(fatal.unemp,
                       year = year,
                       fatalities = fatpbvmt,
-                      fatalities_fitted = lm(fatalities ~ year)$fitted,
-                      unemployment = unempl,
-                      unemployment_fitted = lm(unemployment ~ year)$fitted)
-plot.dat <- meltMyTS(plot.dat, time.var = "year")
-gg_fatal <- ggMyTS(plot.dat, point = F) 
-gg_fatal + theme(axis.text.x = element_text(angle = 90)) + scale_x_continuous(breaks = seq(1948,2012,4))
+                      unemployment = unempl)
+plot.dat <- melt(plot.dat, id.vars = "year")
+
+year_xlabs <- scale_x_continuous(breaks = seq(1948,2012,4)) 
+rotate_xlabs <-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5)) 
+
+gg_fatal <- ggplot(plot.dat, aes(x = year, y = value, group = variable, color = variable)) 
+gg_fatal + geom_line(size = 1) + stat_smooth(method = "lm", se = F, lty = 2)
+gg_fatal + year_xlabs + rotate_xlabs + geom_line(size = 1) + stat_smooth(method = "lm", se = F, lty = 2)
+
+
 
 
 # First model

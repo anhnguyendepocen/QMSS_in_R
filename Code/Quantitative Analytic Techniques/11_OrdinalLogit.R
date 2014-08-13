@@ -4,7 +4,6 @@
 
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
-# Last Edited: 07/19/2014
 
 
 
@@ -104,26 +103,10 @@ vglm.child2 <- vglm(childcare ~ childs + age + married + I(log(realinc)) + polvi
                     data = sub, family = cumulative(reverse=T)) 
 summary(vglm.child2)
 
-# Test the proportional odds assumption (I don't know of a good function for this but we can 
-#   write our own). The arguments "fit" and "relaxed.fit" will be vglm models with family = propodds 
-#   and family = cumulative(reverse=T), respectively
-propOddsTest <- function(fit, relaxed.fit){ 
-  dev1 <- deviance(fit); dev2 <- deviance(relaxed.fit) # model deviances (deviance =  -2*log-likelihood ratio)
-  df.res1 <- df.residual(fit); df.res2 <- df.residual(relaxed.fit) # degrees of freedom
-  chi.sq <- dev1 - dev2 # the chi-squared statistic is the the difference of the deviances
-  df <- df.res1 - df.res2 # the df for the chi-square distribution is the difference of the df
-  p.val <- pchisq(chi.sq, df, lower.tail = F) # compute p-value using chi-squared distribution
-  return(list(message = "Null hypothesis: no violation of assumption.",
-              chi.sq = chi.sq, 
-              df = df, 
-              p.val = p.val))
-}
-
-# Test the assumption using our prop.odds.test function
+# Test the proportional odds assumption using propOddsTest from QMSS package
+?propOddsTest
 propOddsTest(vglm.child, vglm.child2)
 
-# In the future propOddsTest is also in the QMSS package
-?propOddsTest
 
 
 # Predicted probabilities after ordinal logistic regression ---------------
@@ -160,9 +143,4 @@ pred.dat <- rbind("min -> max" = pred.dat[2,]-pred.dat[1,], # change from min to
                   "mean-sd -> mean+sd" = pred.dat[4,]-pred.dat[3,], # change from 1 SD below the mean to 1 SD above 
                   "mean-2sd -> mean+2sd" = pred.dat[6,]-pred.dat[5,]) # change from 2 SDs below the mean to 2 SDs above 
 print(pred.dat, digits = 4)
-
-
-
-
-
 
