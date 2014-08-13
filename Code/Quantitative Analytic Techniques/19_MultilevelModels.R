@@ -127,26 +127,20 @@ rownames(regs) = c("b_const", "b_white", "mean.fitted")
 overall <- round(rowMeans(regs, na.rm = T), 2) 
 overall
 
-# Now plot coef on white vs. mean fitted for each sampyear
-plot(x = regs["b_white",], y = regs["mean.fitted",], 
-     pch = 20, col = rainbow(length(samps)))
-points(x = overall[2], y = overall[3], 
-       cex = 3, pch = 21, col = "black", bg = "navyblue")
-leg.text <- paste("Overall Avg. = (", overall[2],",",overall[3],")")
-legend("bottomright", bty = "n", legend = leg.text, 
-       pch = 21, col = "black", pt.bg = "navyblue", pt.cex = 1.5)
+# plot coef on white vs. mean fitted for each sampyear
+regs.df <- data.frame(t(regs))
+g_white_vs_fitted <- ggplot(regs.df, aes(x = b_white, y = mean.fitted, 
+                                         color = factor(mean.fitted))) 
+g_white_vs_fitted <- g_white_vs_fitted + theme(legend.position = "none") 
+g_white_vs_fitted + geom_point()
 
-# Now plot coef on white vs. intercept for each sampyear
-plot(x = regs["b_white",], y = regs["b_const",], 
-     pch = 20, col = rainbow(length(samps)))
-abline(line(regs["b_white",], regs["b_const",]), 
-       lty = 2, lwd = 3)
-  # Zoom in a bit on the area with the highest density of points
-plot(x = regs["b_white",], y = regs["b_const",], 
-     pch = 20, col = rainbow(length(samps)),
-     xlim = c(-5,5), ylim = c(0,15))
-abline(line(regs["b_white",], regs["b_const",]), 
-       lty = 2, lwd = 3)
+# add a larger point showing the overall means
+mean_point <- annotate("point", x = overall[2], y = overall[3], color = "navyblue", size = 8)
+g_white_vs_fitted + geom_point() + mean_point
+
+# plot coef on white vs. intercept for each sampyear
+g_white_vs_const <- ggplot(regs.df, aes(x = b_white, y = b_const)) + theme(legend.position = "none") 
+g_white_vs_const + geom_point(aes(color = factor(b_const))) + stat_smooth(method = "lm", se = F)
 
 
 
@@ -184,14 +178,8 @@ plotdata <- data.frame(fitted = fitted(lmer.closeblk3),
                        pct.black = sub$pct.black, 
                        white = sub$white)
 
-with(plotdata,{
-  plot(NULL, xlim = c(0,100), ylim = c(4,10), xlab = "pct.black", ylab = "")
-  abline(line(pct.black[white], fitted[white]), col = "orangered", lwd = 2)
-  abline(line(pct.black[!white], fitted[!white]), col = "purple4", lwd = 2)
-})
-legend("top", legend = paste("Race = ", c("white", "black")), 
-       bty = "n", lwd = 1, col = c("orangered", "purple4"))
-
+g_closeblk <- ggplot(plotdata, aes(x = pct.black, y = fitted, group = white, color = white))
+g_closeblk + stat_smooth(method = "lm", se = F) + theme(legend.position = "bottom") 
 
 
 

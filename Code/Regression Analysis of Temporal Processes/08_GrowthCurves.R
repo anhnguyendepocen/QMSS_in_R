@@ -42,25 +42,29 @@ g_trend <- ggplot(sub, aes(x = panelwave, y = n.confinan))
 (g_trend <- g_trend + stat_summary(fun.y=mean, geom="line", lwd = 1.25, color="navyblue"))
 
 # Empirical growth curves for idnum < 200 (& overall)
-g_id <- ggplot(subset(sub, idnum<200), aes(x=panelwave, y=n.confinan, group=idnum))
-(g_id <- g_id + geom_line(aes(color = factor(idnum))))
-(g_id <- g_id + stat_summary(fun.y=mean, geom="line", aes(group=1), lty = 2, color="black"))
-g_id + theme(legend.position="none")
+g_growth <- ggplot(subset(sub, idnum<200), aes(x = panelwave, y = n.confinan, 
+                                           group = idnum, color = factor(idnum)))
+no_legend <- theme(legend.position="none")
+
+g_id <- g_growth + geom_line() + no_legend
+g_id + stat_summary(fun.y=mean, geom="line", aes(group=1), lty = 2, color="black")
+
 
 # individual regression lines for idnum < 200 (& overall)
-g_reg <- ggplot(subset(sub, idnum < 200), aes(x = panelwave, y = n.confinan, group = idnum))
-(g_reg <- g_reg + stat_smooth(method = lm, se = F, aes(color = factor(idnum))))
-(g_reg <- g_reg + stat_summary(fun.y=mean, geom="smooth", aes(group=1), lty = 2, color = "black"))
-g_reg + theme(legend.position="none")
+g_reg <- g_growth + stat_smooth(method = lm, se = F) + no_legend
+g_reg + stat_summary(fun.y=mean, geom="smooth", aes(group=1), lty = 2, color = "black")
+
 
 # overall linear prediction
-g_lm <- (ggplot(sub, aes(x = panelwave, y = n.confinan)) 
-         + stat_summary(fun.y=mean, geom="point", aes(group=1), size=4, color = "navyblue"))
-(g_lm <- g_lm + stat_smooth(method = lm, se = F, color = "skyblue", lwd = 1.25))
- 
+g_lm <- ggplot(sub, aes(x = panelwave, y = n.confinan))
+g_lm <- g_lm + stat_summary(fun.y=mean, geom="point", aes(group=1), size=4, color = "navyblue")
+g_lm <- g_lm + stat_smooth(method = lm, se = F, color = "skyblue", lwd = 1.25)
+g_lm
+
 # add quadratic prediction curve
-(g_lm <- g_lm + stat_smooth(formula = y ~ poly(x,2), method = lm, se = F, 
-                   color = "maroon", lty = 2, lwd = 1.25))
+g_lm <- g_lm + stat_smooth(formula = y ~ poly(x,2), method = lm, se = F, 
+                           color = "maroon", lty = 2, lwd = 1.25)
+g_lm
 
 
 # ols with clustered & robust SEs
@@ -79,6 +83,8 @@ robcov(ols(n.confinan ~ panelwave, x = T, y = T, data = sub),
 
 lmer.confinan <- lmer(n.confinan ~ panelwave + (1|idnum), data = sub, REML = F)
 summary(lmer.confinan)
+
+# use rho function in QMSS package to get fraction of variance due to u_i
 ?rho
 rho(lmer.confinan)
 VarCorr(lmer.confinan)
@@ -127,7 +133,7 @@ summary(lmer.confinan6)
 model.dat <- cbind(model.frame(lmer.confinan6), fitted = fitted(lmer.confinan6))
 model.dat <- subset(model.dat, idnum < 200)
 g_sex_fit <- ggplot(model.dat, aes(x = panelwave, y = fitted, group = idnum, color = male))
-(g_sex_fit <- (g_sex_fit + geom_line() + geom_point() + facet_grid( . ~ male)))
+(g_sex_fit <- g_sex_fit + geom_line() + geom_point() + facet_grid( . ~ male))
 
 
 

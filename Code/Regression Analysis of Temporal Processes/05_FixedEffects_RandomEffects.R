@@ -59,7 +59,7 @@ summary(fd.satfin)
 # _________________________________________________________________________
 
 # take only obs for individuals without missingness on "n.satfin" and "realinc10k" for
-# both waves 1 and 2 and drop all obs from panelwave 3 (for demonstration purposes only)
+# both waves 1 and 2 and drop all obs from panelwave 3 (for demonstration purposes ONLY)
 good1 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==1)])
 good2 <- with(pd.sub, idnum[which(!is.na(n.satfin) & !is.na(realinc10k) & panelwave==2)])
 temp <- subset(pd.sub, idnum %in% good1 & idnum %in% good2 & panelwave < 3)
@@ -84,7 +84,7 @@ fe.satfin <- plm(n.satfin ~ realinc10k + panelwave,
                  data= temp)
 summary(fe.satfin)
 
-#get sigma_u, sigma_e, rho (using sigmaRho function in QMSS package)
+# get sigma_u, sigma_e, rho (using sigmaRho function in QMSS package)
 sigmaRho(fe.satfin) 
 
 

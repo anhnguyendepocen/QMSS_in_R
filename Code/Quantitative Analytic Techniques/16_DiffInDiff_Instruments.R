@@ -58,24 +58,19 @@ summary(lm.president2)
 
 
 # Plot trend of mean happiness score, Republicans vs. Democrats, over time
-  # For years 2006 to 2010
-visreg(lm(n.happy~year*repub, data=sub, year %in% 2006:2010), "year", by="repub", 
-       band=F, overlay=T, partial=F, line=list(col=c("blue","red")),)
+happy.by.year <- ddply(sub, c("year", "repub"), summarise, mean = mean(n.happy, na.rm = T))
+happy.by.year <- na.omit(happy.by.year)
+plot_colors <- scale_color_manual(values = c("blue", "red"), name = "repub") 
 
-  # For all available years
-by.year <- ddply(sub, .(year), summarize, 
-                  mean.dems = mean(n.happy[repub==0], na.rm=T),
-                  mean.repubs = mean(n.happy[repub==1], na.rm=T))
-print(by.year, digits = 3)
+# linear fit for years 2006 to 2010
+g_happy_06to10 <- ggplot(subset(happy.by.year, year %in% 2006:2010), 
+                         aes(x = year, y = mean, group = repub, color = factor(repub)))
+g_happy_06to10 + plot_colors + stat_smooth(method = "lm", se = F) 
 
-with(by.year, plot(year, mean.dems, bty = "l", type = "l", lwd = 2, col = "blue",
-     ylim = c(2,2.5), xlab = "Year", ylab = "Mean happiness score", xaxt = "n"))
-axis(side = 1, at = seq(1970, 2015, 5), labels = T, las = 2)
-lines(by.year$year, by.year$mean.repubs, col = "red", lwd = 2)
-legend("top", c("Republicans", "Democrats"), lwd = 1, 
-       col = c("red", "blue"), bty="n", ncol=2)
-
-
+# for all available years, actual trend with linear fit
+g_happy_all <- ggplot(happy.by.year, aes(x = year, y = mean, 
+                                         group = repub, color = factor(repub)))
+g_happy_all + plot_colors + stat_smooth(method = "lm", se = F, lty = 2) + geom_line()
 
 
 

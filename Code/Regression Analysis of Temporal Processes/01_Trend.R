@@ -50,14 +50,12 @@ by.year <- ddply(sub, # data frame to use
                  mean = mean(n.natcrime)) # create new variable "mean" 
   # plot the trend
 plot(by.year, type = "l", lwd = 2, col = "navyblue", bty = "l")
-
   # add a fitted line 
 with(by.year, abline(line(year, mean), col = "maroon", lwd = 2, lty = 2))
 
   # Or with ggplot
 g_by.year <- ggplot(by.year, aes(x = year, y = mean)) + geom_line(color = "navyblue")
 g_by.year
-
   # add a fitted line
 g_by.year + stat_smooth(method = "lm", se = FALSE, color = "maroon", lty = 2)
 
@@ -82,11 +80,11 @@ g_linear <- g_by.year.sex + stat_smooth(method = "lm", se = FALSE, lty = 2)
 g_linear + color_and_labels
 
   # use a quadratic fit 
-g_quad <- g_by.year.sex + stat_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, lty = 2)
+g_quad <- g_by.year.sex + stat_smooth(method = "lm", formula = y ~ poly(x,2), se = F, lty = 2)
 g_quad + color_and_labels 
 
   # use a cubic fit 
-g_cubic <- g_by.year.sex + stat_smooth(method = "lm", formula = y ~ x + I(x^2) + I(x^3), se = F, lty = 2)
+g_cubic <- g_by.year.sex + stat_smooth(method = "lm", formula = y ~ poly(x,3), se = F, lty = 2)
 g_cubic + color_and_labels
 
 
@@ -140,10 +138,10 @@ g_resids.by.year
   # remove the label "mean" from the y-axis since we're also plotting sds
 g_resids.by.year + ylab("")
 
-# It's surprisingly hard to add a legend to a plot like this in ggplot because 
-# the way our data resids.by.year is structured there's no grouping variable 
-# (like sex). But we can use a better strategy that makes it easier to make the
-# plot and allows for much more flexibility with the legends, layout, etc:
+# It's annoying to add a legend to a plot like this in ggplot because the way
+# our data resids.by.year is structured there's no grouping variable (like sex).
+# But we can use a better strategy that makes it easier to make the plot and
+# allows for much more flexibility with the legends, layout, etc:
 
 # First we use the melt function in the reshape2 package
 

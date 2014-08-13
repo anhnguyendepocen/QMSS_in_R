@@ -129,11 +129,14 @@ sub$yhat <- lpm.romance$fitted # or equivalently sub$yhat <- predict(lpm.romance
 sub$resids <- lpm.romance$residuals
 
 # graphing it
-with(sub, 
-     plot(jitter(attractive), # jitter adds a tiny bit of noise so points very close together can be distinguished
+with(sub, plot(jitter(attractive), # jitter adds a tiny bit of noise so points very close together can be distinguished
           jitter(romance),
           col = "maroon", cex = 0.75))
 abline(lm(yhat ~ attractive, data = sub), lwd = 2, col = "navyblue")
+
+# with ggplot
+g_romance <- ggplot(sub, aes(x = attractive, y = romance)) + geom_jitter(color = "maroon")
+g_romance + stat_smooth(method = "lm", se = F, fullrange = T, color = "navyblue")
 
 
 # Normality of errors assumption is violated 
@@ -408,19 +411,26 @@ logit.colhomo2 <- glm(n.colhomo ~ n.fund*educ + age, data = GSS_2010, family = b
 summary(logit.colhomo2)
 
 # Plot predicted logits and confidence intervals by level of n.fund
+gg_colhomo <- ggplot(GSS_2010[!is.na(GSS_2010$n.fund),], 
+                     aes(x = educ, y = n.colhomo, group = n.fund, color = n.fund)) 
+gg_colhomo + stat_smooth(method = lm)
+
+# or with visreg
 visreg(logit.colhomo2, "educ", by = "n.fund", 
        partial = F, overlay = T, 
        xlab = "Highest year of school completed", 
        ylab = "Predicted logit")
 
+
 # Plot predicted probabilities by level of n.fund
-#   same as plotting predicted logits but we add 'scale = "response"' 
+gg_colhomo + stat_smooth(method="glm", family="binomial")
+
+# or with visreg (we add scale = "response") 
 visreg(logit.colhomo2, "educ", by = "n.fund", 
        partial = F, overlay = T, 
        xlab = "Highest year of school completed", 
        ylab = "Predicted probability", 
        scale= "response")
-
 
 
 # Plot predicted probabilities for each level of educ by level of n.fund for 
@@ -435,6 +445,6 @@ preds <- predProb(logit.colhomo2, predData = pred.dat)
   # set up ggplot
 gg_preds <- ggplot(preds, aes(x = educ, y = PredictedProb, group = n.fund, color = n.fund))             
   # use facet_grid to make a different plot for each of the age values
-gg_preds <- (gg_preds + geom_line() 
-             + facet_grid(. ~ age, labeller = function(age,value) paste(age,"=",value)))
-gg_preds
+gg_preds + geom_line() + facet_grid(. ~ age, 
+                                    labeller = function(age,value) paste(age,"=",value))
+

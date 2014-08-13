@@ -33,17 +33,13 @@ load("GSS.RData")
 ### For the United States, from 1975-1992, try to predict average confidence in banks ###
 
 vars <- c("year", "confinan", "sex", "age", "partyid", "wrkstat", "degree")
-
-
 sub <- GSS[, vars]
 
 sub <- mutate(sub, 
-              n.confinan = ReverseThis(confinan), # ReverseThis from QMSS package
-              married = ifelse(marital == 1, 1, 0),
+              n.confinan = ReverseThis(confinan), 
               baplus = ifelse(degree >= 3, 1, 0),
               fulltime = ifelse(wrkstat == 1, 1, 0),
               womenft = ifelse(sex == 2 & wrkstat == 1, 1, 0),
-              marriedlt50 = ifelse(married == 1 & age < 50, 1, 0),
               degreelt50 = ifelse(baplus == 1 & age <50, 1, 0),
               partyid6 = ifelse(partyid == 6, 1, 0),
               partyid7 = ifelse(partyid == 7, 1, 0))
@@ -73,7 +69,7 @@ by.year.ts <- ts(subset(by.year.ts, year <= 1992))
 
 # correlations
 cor.vars <- c("n.confinan", "fulltime_pct", "repub_pct", "degreelt50_pct", "year")
-cor.dat <- data.frame(by.year.ts)[, cor.vars]
+cor.dat <- by.year.ts[, cor.vars]
 cor(cor.dat, use = "complete")
 
 
@@ -89,10 +85,11 @@ cor(cor.dat, use = "complete")
 # variable(s) you want with ggplot. Here's an example:
 
 # First install the reshape2 package if not already installed
-install.packages("reshape2")
+# install.packages("reshape2")
 
 # Make a character vector naming the variables we might want to plot
-keep.vars <- c("year", "n.confinan", "repub_pct","fulltime", "fulltime_pct", "degreelt50_pct")
+keep.vars <- c("year", "n.confinan", "repub_pct","fulltime", 
+               "fulltime_pct", "degreelt50_pct")
 
 # Use meltMyTS to transform the data to a 3-column dataset containing a column
 # for time, a column for variable names, and a column of values corresponding to
@@ -102,6 +99,7 @@ plot.dat <- meltMyTS(mv.ts.object = by.year.ts, time.var = "year", keep.vars = k
 plot.dat
 
 # Use ggMyTS to plot any of the variables or multiple variables together
+?ggMyTS
 (g_ft_conf <- ggMyTS(df = plot.dat, varlist = c("fulltime", "n.confinan")))
 
 # if there are a lot of years then the x-axis labels can get cluttered so we can rotate them
@@ -127,21 +125,20 @@ g_degree <- ggMyTS(plot.dat, "degreelt50_pct", color = "royalblue") + ylab("Perc
   # instead of using the very wordy "scale_x_continuous(breaks = seq(1972,1992, by
   # = 4))" for each of the plots, we can assign it to an object with a shorter
   # name and use it like this:
-XX <- scale_x_continuous(breaks = seq(1972,1992, by = 4))
-g_conf <- g_conf + XX
-g_ft <- g_ft + XX
-g_repub <- g_repub + XX
-g_degree <- g_degree + XX
+x_axis <- scale_x_continuous(breaks = seq(1972,1992, by = 4))
+g_conf <- g_conf + x_axis
+g_ft <- g_ft + x_axis
+g_repub <- g_repub + x_axis
+g_degree <- g_degree + x_axis
 
   # now we can use grid.arrange to plot them side by side
 grid.arrange(g_conf, g_ft, g_repub, g_degree)
 
 # if we want them all on the same plot (instead of separate plots side by side)
 # then we can just tell ggMyTS to plot all of them by not including a var.list
-ggMyTS(plot.dat)
+ggMyTS(plot.dat) + x_axis
 
 # we can also give ggMyTS other instructions to pass to ggplot, for example:
-?ggMyTS
 ggMyTS(plot.dat, point = F) # don't plot the points, just the lines
 ggMyTS(plot.dat, line = F) # don't plot the lines, just the points
 ggMyTS(plot.dat, pointsize = 2, linewidth = .5, linetype = 2) # change point size, line width and line type
@@ -184,7 +181,7 @@ mean.dat <- data.frame(year = by.year.ts[,"year"], mean = mean.confinan[-1])
 sd.confinan <- apply(cbind(Lag.confinan, by.year.ts[,"n.confinan"]),1,sd,na.rm=T)
 sd.dat <- data.frame(year = by.year.ts[,"year"], sd = sd.confinan[-1])
 ggplot(sd.dat, aes(x=year, y=sd)) + geom_bar(stat = "identity") 
-ggplot(sd.dat, aes(x=year, y=sd)) + geom_bar(aes(fill = sd), stat = "identity") 
+ 
 
 
 

@@ -39,12 +39,12 @@ pd$divorce.easier <- mapvalues(pd$divlaw,
 # quick (crude) check that recode worked (look at first 20 rows)
 with(pd, table(divlaw, divorce.easier))
 
-# get counts and percentages for levels of divorce.easier using custom tab function
+# counts and percentages for levels of divorce.easier with QMSS Tab function
 Tab(pd$divorce.easier)
 
 # make indicator variable for "divorced"
-pd$divorced <- as.numeric(pd$marital == 3 | pd$marital == 4)
-Tab(pd$divorced)
+pd$divorced <- as.numeric(pd$marital == 3 | pd$marital == 4) # or alternatively ifelse(pd$marital == 3 | pd$marital == 4, 1, 0)
+
 
 ### Simple linear regression (OLS) ###
 lm.divorce <- lm(divorce.easier ~ divorced, data = pd)
@@ -70,7 +70,8 @@ summary(ologit.divorce)
 vars <- c("idnum","panelwave","divorce.easier","divorced","realinc","educ","race","sex","age")
 pd.sub <- pd[, vars] # same as pd.sub <- subset(pd, select = vars)
 
-lm.divorce3 <- plm(divorce.easier ~ divorced, data = pd.sub, index = c("idnum", "panelwave"),
+lm.divorce3 <- plm(divorce.easier ~ divorced, data = pd.sub, 
+                   index = c("idnum", "panelwave"),
                    model = "pooling") # model = "pooling" will give us the same results as using lm()
 summary(lm.divorce3) # should be same as lm.divorce
 
@@ -86,7 +87,7 @@ df <- (n/(n - 1)) * (N - 1)/lm.divorce3$df.residual
 # retest coefficients using coeftest() from lmtest package
 coeftest(lm.divorce3, vcov = df*vcovHC(lm.divorce3, type = "HC0", cluster = "group"))
 
-# For future use there's a clusterSE function in QMSS package
+# For future use these steps are combined in the clusterSE function in QMSS package
 ?clusterSE
 clusterSE(fit = lm.divorce3, cluster.var = "idnum")
 
@@ -117,7 +118,7 @@ summary(plm.divorce)
 #   whereas for models fit with lm we can use summary(model)$adj.r.squared
 Adj.R2 <- c(summary(plm.divorce)$r.squared[2],
             summary(lm.divorce)$adj.r.squared) 
-names(Adj.R2) <- c("FD", "OLS")
+names(Adj.R2) <- c("First Diff", "OLS")
 round(Adj.R2, 4)
 
 
@@ -125,15 +126,16 @@ round(Adj.R2, 4)
 
 # if we have a lot of variables to include in a model then it can be nice to get
 # the long messy formula out of the way before running the model
-y.var <- 'divorce.easier' # the y variable
-x.vars <- c('divorced','I(log(realinc))','educ','as.factor(race)','as.factor(sex)','age','panelwave') # the x variables
+y.var <- 'divorce.easier' 
+x.vars <- c('divorced','I(log(realinc))','educ','as.factor(race)',
+            'as.factor(sex)','age','panelwave') 
 # we can use paste to combine everything together into formula. We use
 # collapse=' + ' to insert a + between the variables in x.vars)
 paste(y.var, '~', paste(x.vars, collapse=' + ' )) 
 
 # we can use as.formula() to make this text of the formula a formula object to
 # use in the plm function
-plm.formula <- as.formula( paste(y.var, '~', paste(x.vars, collapse=' + ' )))
+plm.formula <- as.formula(paste(y.var, '~', paste(x.vars, collapse=' + ' )))
 
 # then to run our model we can just write:
 plm.divorce2 <- plm(plm.formula, index=c("idnum", "panelwave"), model="fd", data=pd.sub)
@@ -148,10 +150,10 @@ pd.sub$race3 <- pd.sub$race==3
 
 
 # create first-differenced variables and add them to our subset of the data
-# the QMSS package has a function firstD for compute first differences
+# the QMSS package has a function firstD for computing first differences
 pd.sub <- ddply(pd.sub, # the dataset
                 "idnum", # split the data by "idnum" variable 
-                mutate, # funtion to apply to each "idnum" subset (mutate tells ddply that the next arguments will be new variables (usually created as functions of existing variables)
+                mutate, # mutate will add the variables created in the next lines to the existing data set
                 d.sex = firstD(sex), 
                 d.age = firstD(age),
                 d.race2 = firstD(race2), 
@@ -207,16 +209,13 @@ vglm.divorce <- vglm(as.ordered(d.divorce.easier) ~ d.divorced + panelwave,
                      data = pd.sub, family = propodds)
 summary(vglm.divorce)
 
-# Use our custom prop.odds.test function
+# Use propOddsTest from QMSS package
 vglm.divorce2 <- vglm(formula(vglm.divorce),pd.sub,family=cumulative(reverse=T))
 propOddsTest(vglm.divorce, vglm.divorce2)
 
-# Cross-tab (using TabX from QMSS package)
+# Cross-tab using TabX from QMSS package
 ?TabX
-with(subset(pd.sub, d.divorced != 0, TabX(d.divorce.easier, d.divorced)))
-
-
-
+with(subset(pd.sub, d.divorced != 0), TabX(d.divorce.easier, d.divorced))
 
 # Means of d.divorce.easier by level of d.divorced
 with(pd.sub, by(d.divorce.easier, d.divorced, mean, na.rm=T)) 

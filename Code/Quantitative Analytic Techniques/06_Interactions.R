@@ -33,56 +33,19 @@ load("GSS_2010.RData")
 
 vars <- c("realrinc", "educ", "sex")
 sub <- GSS[, vars]
+sub <- na.omit(sub)
 
 sub$female <- sub$sex == 2
 lm.income <- lm(realrinc ~ educ + female, data = sub)
 summary(lm.income)
 
+sub$fitted <- predict(lm.income)
+
 
 # Plot of education vs predicted income comparing men and women 
-  # There are many many ways to do this. Here are several:
-  
-  # Using visreg package
-# install.packages("visreg")
-library(visreg)
-visreg(lm.income, # the model
-       xvar = "educ", # variable to plot on x-axis
-       xlab = "highest year of school completed", # title for x-axis
-       ylab = "Income", # title for y-axis
-       by = "female", # plot one line for males and one for females
-       overlay = T, # plot lines for females and males on same plot 
-       partial = F, # don't plot residuals 
-       band = F, # don't plot confidence interval bands,
-       legend = F, # don't print legend (we'll add our own)
-       cex.axis = 0.7, # shrink the axis annotations (the tick mark labels) a bit
-       bty = "l", # draw L-shaped box around the plot (instead of full rectangle default)
-       line = list(col = c("darkcyan", "lightcoral"))) # colors for the lines  
-legend("top", c("Males", "Females"), # add a legend to the plot
-       lwd = 2, col = c("darkcyan", "lightcoral"), bty = "n")
+g_realrinc <- ggplot(sub, aes(x = educ, y = fitted, group = female, color = female))
+g_realrinc + stat_smooth(method = "lm", se = F)
 
-  # Or using interaction.plot() function
-interaction.plot(lm.income$model$educ, lm.income$model$female, lm.income$fitted,
-                 col =  c("darkcyan", "lightcoral"), # colors for the lines
-                 lty = 1, lwd = 2, # line types and line widths
-                 legend = F, 
-                 xlab = "Highest year of school completed", # captions for the axes
-                 ylab = "Income")
-legend("bottomright", c("Males", "Females"), col = c("darkcyan", "lightcoral"), lwd = 2)
-
-  # Or for practice we can do the plot manually using plot() and points()
-model.dat <- cbind(lm.income$model, xb = lm.income$fitted)
-with(model.dat,{
-  # plot for females 
-  plot(educ[female==T], xb[female==T], 
-       type = "l", # type = "l" for lines
-       col = "lightcoral", # color of the line for females
-       xlab = "Highest year of school completed", 
-       ylab = "Predicted Income")
-  # add points & line for males 
-  points(educ[female==F], xb[female==F], type="l", col="darkcyan")
-  # add a legend to the plot 
-  legend("bottomright", c("Males", "Females"), col = c("darkcyan", "lightcoral"), lwd = 2)
-})
 
 
 # Simple regression for men and women separately
@@ -98,28 +61,29 @@ summary(lm.income2)
 summary(lm(realrinc ~ educ*female, data = sub)) 
 
 # Plot again, this time with interaction. 
-  # Again, there are many ways to do this. Here are several:
+  # With ggplot
+g_realrinc.interaction <- ggplot(sub, aes(x = educ, y = realrinc, 
+                                          group = female, color = female))
+g_realrinc.interaction + stat_smooth(method = "lm", se = F)
 
-  # Using visreg()
+  # or using visreg package
+#install.packages("visreg")
+library(visreg)
 visreg(lm.income2, "educ", by = "female", overlay = T, partial = F, band = F, legend = F, 
-       line = list(col = c("darkcyan", "lightcoral"))) 
-legend("bottomright", c("Males", "Females"), lwd = 2, col = c("darkcyan", "lightcoral"), cex = 0.7)
+       line = list(col = c("skyblue", "maroon"))) 
+legend("bottomright", c("Males", "Females"), lwd = 2, col =  c("skyblue", "maroon"), cex = 0.7)
   
-  # Or using xyplot() function from lattice package
+  # or using xyplot() function from lattice package
 library(lattice)
 xyplot(realrinc ~ educ, groups = female, data = sub, 
        type = "r", grid = T, lwd = 3, ylim=c(-5*10^4,10^5),
        auto.key = list(text = c("Males", "Females"), points = F, lines = T))
 
-  # Or with ggplot
-(ggplot(sub, aes(x = educ, y = realrinc, group = female, colour = female)) 
- + geom_smooth(method = "lm", fullrange=T, se = F))
-
-  # Or manually adding each piece of the plot one at a time
-plot(lm.males$model$educ, lm.males$fitted, type = "n", xlab = "Predicted Income")
-abline(lm.males, col = "darkcyan", lwd = 2)
-abline(lm.females, col = "lightcoral", lwd = 2)
-legend("top", c("Males", "Females"), col = c("darkcyan", "lightcoral"), 
+  # or manually adding each piece of the plot one at a time
+plot(lm.males$model$educ, lm.males$fitted, type = "n", xlab = "educ", ylab = "fitted values")
+abline(lm.males, col = "skyblue", lwd = 2)
+abline(lm.females, col = "maroon", lwd = 2)
+legend("top", c("Males", "Females"), col = c("skyblue", "maroon"), 
        lwd = 2, ncol = 2, bty = "n")
 
 
@@ -131,7 +95,6 @@ legend("top", c("Males", "Females"), col = c("darkcyan", "lightcoral"),
 vars <- c("educ", "sibs", "madeg", "family16", "age")
 sub <- GSS[, vars]
 sub$maBA <- sub$madeg %in% c(3,4)
-Tab(sub$maBA)
 
 # A simple multiple regression 
 summary(lm(educ ~ sibs + maBA, data = sub))
@@ -146,6 +109,10 @@ summary(lm(educ ~ sibs, data = sub, maBA == 1))
 summary(lm(educ ~ sibs + maBA + sibs:maBA, data = sub))
 
 # Plot: kids of BA+ moms vs. not, with interaction
+gg_educ_interaction <- ggplot(sub, aes(x = sibs, y = educ, group = maBA, color = maBA))
+gg_educ_interaction + stat_smooth(method = "lm", se = F, fullrange = T)
+
+# Or using visreg
 visreg(lm(educ ~ sibs + maBA + sibs:maBA, data = sub),
        xvar = "sibs", by = "maBA", overlay=T, partial = F, band = F, legend = F, 
        line = list(col = c("cyan3", "purple3"))) 
@@ -158,20 +125,11 @@ Tab(sub$twobio)
 lm.maBA <- lm(educ ~ sibs*maBA + age + twobio, data = sub)
 summary(lm.maBA)
 
-# Redo the interaction plot 
-visreg(lm.maBA, "sibs", by = "maBA", overlay=T, band = F, partial = F, 
-       line = list(col = c("cyan3", "purple3")), bty = "l", legend = F,
-        # cond = list(), # conditional values of explanatory vars (default is median for numeric & most common category for factors)
-       print.cond=TRUE) # print message telling us the conditional values of explanatory variables  
-legend("topright", c("<BA", "BA+"), bty = "n", lwd = 2, col = c("cyan3", "purple3"), cex = 0.8)
-
-  # Redo interaction plot fixing age 20
-visreg(lm.maBA, "sibs", by = "maBA", overlay=T, band = F, partial = F,
-       line = list(col = c("cyan3", "purple3")), bty = "l",
-       cond = list(age = 20),
-       print.cond=TRUE) 
-
-
+# Make the interaction plot at both levels of twobio
+panel_labels <- function(var,value) paste(var,"=",value) 
+gg_educ_interaction2 <- ggplot(na.omit(sub), aes(x = sibs, y = educ, group = maBA, color = maBA))
+gg_educ_interaction2 <- gg_educ_interaction2 + facet_grid(.~ twobio, labeller = panel_labels)
+gg_educ_interaction2 + stat_smooth(method = "lm", se = F, fullrange = T) 
 
 
 
@@ -190,6 +148,10 @@ summary(lm(evolution ~ fundamentalist + educ, data = sub))
 summary(lm(evolution ~ educ*fundamentalist, data = sub))
 
 # Plot (fundamentalist vs. not fundamentalist, with interaction)
+g_evolution <- ggplot(na.omit(sub), aes(x = educ, y = evolution, 
+                                        group = fundamentalist, color = fundamentalist)) 
+g_evolution + stat_smooth(method = "lm", se = F) + scale_color_manual(values = c("blue", "red"))
+
 visreg(lm(evolution ~ educ*fundamentalist, data = sub), 
        "educ", by = "fundamentalist", overlay=T, band = F, partial = F, 
        line = list(col = c("dodgerblue","orangered")), bty = "l", legend = F) 
@@ -224,6 +186,12 @@ lm.wordsum2 <- lm(wordsum ~ married*educ, data = sub)
 summary(lm.wordsum2)
 
 # Graphing this relationship
+g_wordsum <- ggplot(sub[!is.na(sub$married), ], aes(x = educ, y = wordsum, 
+                                                    group = married, color = married))
+line_colors <- scale_color_manual(values = c("darkgreen", "darkorchid"))
+g_wordsum + stat_smooth(method = "lm", se = F) + line_colors
+
+# with visreg
 visreg(lm.wordsum2, "educ", by = "married", overlay=T, band = F, partial = F, 
        line = list(col = c("darkgreen", "darkorchid")), bty = "l", legend = F) 
 legend("top", c("Unmarried", "Married"), horiz = T, 
@@ -232,10 +200,8 @@ legend("top", c("Unmarried", "Married"), horiz = T,
 
 
 
-
 # Continuous by continuous interactions -----------------------------------
 # _________________________________________________________________________
-
 
 ### Wordsum, by educ & spouse’s educ ###
 sub <- GSS[, c("wordsum", "educ", "speduc")]
@@ -249,24 +215,25 @@ summary(lm.speduc)
 
 
 # Plotting the relationship, fixing speduc at 0, mean-sd, mean+sd, and 20
-# first get mean and sd of speduc
-m <- with(lm.speduc$model, mean(speduc)); sd <- with(lm.speduc$model, sd(speduc))
-# now use visreg() using our desired values as the values of the "breaks" argument 
-visreg(lm.speduc, "educ", by = "speduc", breaks = c(0,m-sd,m+sd,20), 
-       line = list(col = c("orangered", "dodgerblue4", "purple4", "turquoise4")),
-       overlay=T, band = F, partial = F, bty = "l", legend = F) 
+m <- round(mean(sub$speduc, na.rm = T), 2)
+sd <- round(sd(sub$speduc, na.rm = T), 2)
+plot.dat <- with(sub, expand.grid(educ = na.omit(unique(educ)), 
+                                  wordsum = na.omit(unique(wordsum)), 
+                                  speduc = c(0, m - sd, m + sd, 20)))
+plot.dat <- data.frame(plot.dat, wordsum_pred = predict(lm.speduc, newdata = plot.dat))
+g_speduc_fixed <- ggplot(plot.dat, aes(x = educ, y = wordsum_pred, 
+                                       group = speduc, color = factor(speduc)))
+g_speduc_fixed + stat_smooth(method = "lm", se = F) 
 
-# add a legend (we can do it in one step or we can define the legend text first
-# and use it after with the legend() command) below, bquote() allows us to
-# combine mathematical symbols and numeric variables in our legend (see ?bquote
-# and ?plotmath for more on this)
+# customize the colors and legend text
+  # bquote() allows us to combine mathematical symbols and numeric variables in
+  # our legend (see ?bquote and ?plotmath for more on this)
 legend.text <- c(0, 
                  bquote(bar(x) - sd == .(round(m - sd, 2)) ), 
                  bquote(bar(x) + sd == .(round(m + sd, 2)) ),
                  20)
-legend("bottomright", legend = as.expression(legend.text),
-       col = c("orangered", "dodgerblue4", "purple4", "turquoise4"), 
-       lwd = 2, bty = "n", title.adj=0, cex = 0.7, title = "Spouse's Education")
+colors_and_legend <- scale_color_brewer(palette = "Set1", labels = legend.text, name = "speduc")
+g_speduc_fixed + stat_smooth(method = "lm", se = F) + colors_and_legend
 
 
 
@@ -286,7 +253,7 @@ summary(lm(r.health ~ educ + attend + age, data = sub))
 lm.health <- lm(r.health ~ educ*attend + age, data = sub)
 summary(lm.health)
 
-# Plotting the relationship
+# Plotting the relationship (using visreg for practice)
 visreg(lm.health, "educ", by = "attend", breaks = c(0,4,8), 
        overlay=T, band = F, partial = F, bty = "l", legend = F,
        line = list(col = c("darkgreen", "darkorchid","royalblue"))) 

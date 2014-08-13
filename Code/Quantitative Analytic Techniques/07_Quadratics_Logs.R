@@ -104,8 +104,6 @@ g + geom_bar(stat = "identity") + colors_and_labels
 
 
 
-
-
 # Omitted variables test
 resettest(lm.attend, pow = 2:4)
 
@@ -118,8 +116,6 @@ with(lm.attend2, curve(coefficients%*%rbind(1,x,x^2),
                        xlab = "partyid", ylab = "",
                        xlim = c(0,6), ylim = c(3,5), 
                        lwd = 2, col = "darkblue"))
-
-
 
 
 

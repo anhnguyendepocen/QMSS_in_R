@@ -111,13 +111,13 @@ round(coef(lm.natcrime_cub), 3)
 # What do the quadratic & cubic trends on nnatcrime look like?
 g_quad_cubic <- ggplot(by.year, aes(x = year, y = NATCRIME)) + geom_point() 
   # quadratic
-g_quad_cubic + stat_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)
+g_quad_cubic + stat_smooth(method = "lm", formula = y ~ poly(x,2), se = F)
   # cubic
-g_quad_cubic + stat_smooth(method = "lm", formula = y ~ x + I(x^2) + I(x^3), se = F)
+g_quad_cubic + stat_smooth(method = "lm", formula = y ~ poly(x,3), se = F)
   # both
 (g_quad_cubic 
- + stat_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, color = "blue")
- + stat_smooth(method = "lm", formula = y ~ x + I(x^2) + I(x^3), se = F, color = "green"))
+ + stat_smooth(method = "lm", formula = y ~ poly(x,2), se = F, color = "blue")
+ + stat_smooth(method = "lm", formula = y ~ poly(x,3), se = F, color = "green"))
 
 
 ### Dummy variable aproach / Event analysis ###
@@ -198,7 +198,8 @@ summary(lm(n.natcrime ~ lsp(year, 1993) + factor(cohort.cut) + age, data = sub))
 # or reduce the model to just period effects
 summary(lm(n.natcrime ~ lsp(year, 1993), data = sub))
 
-# include interactions on post-1993 period and cohort, and post-1993 period and age
+# include interactions on post-1993 period and cohort, and post-1993 period
+# and age
 
 sub[,c("lsp1993_1", "lsp1993_2")] <- with(sub, lsp(year, 1993))
 lm.natcrime_lspInteraction <- lm(n.natcrime ~ lsp1993_1 

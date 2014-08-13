@@ -16,12 +16,10 @@ setwd("INSERT PATH TO DIRECTORY")
 
 # Load packages
 library(QMSS)
-library(ggplot2)
 library(nnet)
 library(plyr)
 library(psych)
 library(VGAM)
-library(visreg)
 
 # Load the cumulative GSS and the GSS_2010 dataset 
 load("GSS.RData")
