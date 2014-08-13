@@ -35,7 +35,8 @@ load("GSS.RData")
 
 ### Does opposite-party president affect Republican happiness more than Democratic happiness? ###
 
-vars <- c("happy", "partyid", "year", "age", "educ", "sex", "realinc", "polviews", "race", "region")
+vars <- c("happy", "partyid", "year", "age", "educ", "sex", 
+          "realinc", "polviews", "race", "region")
 sub <- GSS[, vars]
 Tab(sub$happy)
 sub$n.happy <- ReverseThis(sub$happy)
@@ -58,24 +59,19 @@ summary(lm.president2)
 
 
 # Plot trend of mean happiness score, Republicans vs. Democrats, over time
-# For years 2006 to 2010
-library(visreg)
-visreg(lm(n.happy~year*repub, data=sub, year %in% 2006:2010), "year", by="repub", 
-       band=F, overlay=T, partial=F, line=list(col=c("blue","red")),)
+happy.by.year <- ddply(sub, c("year", "repub"), summarise, mean = mean(n.happy, na.rm = T))
+happy.by.year <- na.omit(happy.by.year)
+plot_colors <- scale_color_manual(values = c("blue", "red"), name = "repub") 
 
-# For all available years
-by.year.party <- ddply(sub, .(year), summarise, 
-                 mean.dems = mean(n.happy[repub==0], na.rm=T),
-                 mean.repubs = mean(n.happy[repub==1], na.rm=T))
-print(by.year.party, digits = 3)
+  # linear fit for years 2006 to 2010
+g_happy_06to10 <- ggplot(subset(happy.by.year, year %in% 2006:2010), 
+                         aes(x = year, y = mean, group = repub, color = factor(repub)))
+g_happy_06to10 + plot_colors + stat_smooth(method = "lm", se = F) 
 
-with(by.year.party, plot(year, mean.dems, bty = "l", type = "l", lwd = 2, col = "blue",
-                   ylim = c(2,2.5), xlab = "Year", ylab = "Mean happiness score", xaxt = "n"))
-axis(side = 1, at = seq(1970, 2015, 5), labels = T, las = 2)
-lines(by.year.party$year, by.year.party$mean.repubs, col = "red", lwd = 2)
-legend("top", c("Republicans", "Democrats"), lwd = 1, col = c("red", "blue"), bty="n", ncol=2)
-
-
+  # for all available years, actual trend with linear fit
+g_happy_all <- ggplot(happy.by.year, aes(x = year, y = mean, 
+                                         group = repub, color = factor(repub)))
+g_happy_all + plot_colors + stat_smooth(method = "lm", se = F, lty = 2) + geom_line()
 
 
 
@@ -86,21 +82,13 @@ legend("top", c("Republicans", "Democrats"), lwd = 1, col = c("red", "blue"), bt
 load("APC.RData")
 
 # overall natcrime trend
-g_year
-(g_year <- g_year + ylim(2.45, 2.75) 
- + theme(panel.background = element_rect(fill = "gray49", colour = 'white'))) 
+g_year + ylim(2.45, 2.75) 
 
 # add fitted line
 (g_year <- g_year + stat_smooth(method = lm, se = FALSE, color = "maroon", lty = 2, lwd = 1.25))
 
-# or just view points and fitted line
-(ggplot(by.year, aes(x = year, y = NATCRIME)) + geom_point(color = "skyblue", size = 3) 
- + stat_smooth(method = lm, se = FALSE, color = "maroon", lty = 2, lwd = 1.25)
- + theme(panel.background = element_rect(fill = "gray49", colour = 'white'))
- + ylim(2.45, 2.75) )
- 
 
-# We can test for the need for higher-order terms
+ # We can test for the need for higher-order terms
 lm.natcrime_test <- lm(n.natcrime ~ year, data = sub)
 summary(lm.natcrime_test)
 resettest(lm.natcrime_test, power = 2:4) # Ramsey RESET test
@@ -121,12 +109,15 @@ summary(lm.natcrime_cub)
 round(coef(lm.natcrime_cub), 3)
 
 # What do the quadratic & cubic trends on nnatcrime look like?
-b_quad <- coef(lm.natcrime_quad)
-b_cub <- coef(lm.natcrime_cub)
-plot(by.year, pch = 20, col = "cyan3")
-curve(b_quad%*%rbind(1,x,x^2), add = TRUE, lwd = 2, col = "navyblue") # quadratic
-curve(b_cub%*%rbind(1,x,x^2,x^3), add = TRUE, lwd = 2, col = "orangered") # cubic
-
+g_quad_cubic <- ggplot(by.year, aes(x = year, y = NATCRIME)) + geom_point() 
+  # quadratic
+g_quad_cubic + stat_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)
+  # cubic
+g_quad_cubic + stat_smooth(method = "lm", formula = y ~ x + I(x^2) + I(x^3), se = F)
+  # both
+(g_quad_cubic 
+ + stat_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, color = "blue")
+ + stat_smooth(method = "lm", formula = y ~ x + I(x^2) + I(x^3), se = F, color = "green"))
 
 
 ### Dummy variable aproach / Event analysis ###
@@ -140,12 +131,14 @@ lm.natcrime_period <- lm(n.natcrime ~ period, data = sub)
 summary(lm.natcrime_period)
 
 sub$XB_period <- lm.natcrime_period$fitted
-by.year_period <- ddply(sub, "year", summarise, NATCRIME = mean(n.natcrime), XB = mean(XB_period))
-g_period <- (ggplot(by.year_period, aes(x = year, y = XB)) 
-            + geom_point(color = "navyblue", size = 3) + geom_line(color = "navyblue"))
-g_period <- (g_period + geom_point(aes(x = year, y = NATCRIME), color = "maroon", size = 3) 
-             + geom_line(aes(x = year, y = NATCRIME), color = "maroon"))
-g_period + ylab("")
+by.year_period <- ddply(sub, "year", summarise, 
+                        NATCRIME = mean(n.natcrime), 
+                        XB = mean(XB_period))
+by.year_period <- melt(by.year_period, id.vars = "year")
+g_period <- ggplot(by.year_period, aes(x = year, y = value, 
+                                       group = variable, color = variable))
+g_period2 + geom_point(size = 3) + geom_line()
+
 
 
 
@@ -163,17 +156,11 @@ lm(n.natcrime ~ year, data = sub, year > 1993)
 
 # graphing it
 sub$XB_sp1 <- lm.natcrime_sp1$fitted
-plot(by.year, pch = 19, col = "maroon", ylab = "", bty = "l")
-points(sub[,c("year","XB_sp1")], pch = 20, col = "navyblue")
-lines(sub[,c("year","XB_sp1")], lwd = 2, col = "navyblue")
-
-
 by.year_sp1 <- ddply(sub, "year", summarise, NATCRIME = mean(n.natcrime), XB = mean(XB_sp1))
-g_sp1 <- (ggplot(by.year_sp1, aes(x = year, y = NATCRIME)) 
-             + geom_line(color = "gray50") + geom_point(color = "hotpink", size = 3))
-g_sp1 <- (g_sp1  + geom_line(aes(x = year, y = XB), color = "gray10")
-          + geom_point(aes(x = year, y = XB), color = "cyan3", size = 3))           
-g_sp1 + ylab("") 
+by.year_sp1 <- melt(by.year_sp1, id.vars = "year")
+g_sp1 <- ggplot(by.year_sp1, aes(x = year, y = value, group = variable, color = variable))
+g_sp1 + geom_line() + geom_point(size = 3)
+
 
 
 # splines with more knots
@@ -225,22 +212,14 @@ summary(lm.natcrime_lspInteraction)
 # Graphing age*period interactions over time
 sub$yhat <- predict(lm.natcrime_lspInteraction)
 yhat.by.age <- ddply(sub, c("age.cut", "year"), summarise, yhat = mean(yhat))
+legend_options <- theme(legend.position = "bottom", 
+                        legend.title = element_text(face = "italic"))
+g_yhat.by.age <- ggplot(yhat.by.age, aes(x=year, y=yhat, g
+                                         roup=age.cut, color=factor(age.cut)))
+g_yhat.by.age + geom_line() + legend_options
 
-g_yhat.by.age <- (ggplot(yhat.by.age, aes(x=year, y=yhat, group=age.cut)) 
-                  + geom_line(aes(color=factor(age.cut)), lwd = 1.1) 
-                  + scale_color_discrete(name = "Age Cuts"))
-g_yhat.by.age
-g_yhat.by.age + theme(legend.position = "bottom", 
-                       panel.background = element_rect(fill = "gray40"), 
-                       legend.title = element_text(face = "italic"))
- 
 # Graphing cohort*period interactions over time
 yhat.by.cohort <- ddply(sub, c("cohort.cut", "year"), summarise, yhat = mean(yhat))
-g_yhat.by.cohort <- (ggplot(yhat.by.cohort, aes(x=year, y=yhat, group=cohort.cut)) 
-                     + geom_line(aes(color=factor(cohort.cut)), lwd = 1.1) 
-                     + scale_color_discrete(name = "Cohort Cuts"))
-g_yhat.by.cohort 
-g_yhat.by.cohort + theme(legend.position = "bottom", 
-                         panel.background = element_rect(fill = "gray40"), 
-                         legend.title = element_text(face = "italic"))
-
+g_yhat.by.cohort <- ggplot(yhat.by.cohort, aes(x=year, y=yhat, 
+                                               group=cohort.cut, color=factor(cohort.cut))) 
+g_yhat.by.cohort + geom_line() + legend_options
