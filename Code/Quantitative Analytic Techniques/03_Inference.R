@@ -47,19 +47,21 @@ t.test(GSS_2010$totalhr)$conf.int
 # Or the 99% confidence interval
 t.test(GSS_2010$totalhr, conf.level = 0.99)$conf.int
 
+
 # Compare confidence intervals for various confidence levels 
   # store the levels to use in a vector called levs
 levs <- c(0.1, 0.5, 0.9, 0.95, 0.99, 0.9999) 
-  # make an empty matrix (all 0s) with length(levs) rows and 2 columns 
+  # make an empty matrix (all 0s) with length(levs) rows and 2 columns that
+  # we'll fill in with the confidence intervals for the different levels
 ci <- mat.or.vec(nr = length(levs), nc = 2) 
   
   # Many ways to proceed. For practice with loops we can use a loop over the
   # indices of the levs vector
-for(j in 1:length(levs)){ 
+for (j in 1:length(levs)) { 
     # now we set jth row of the empty ci matrix to be the confidence interval
     # obtained using the jth level in levs
     ci[j,] <- t.test(GSS_2010$totalhr, conf.level = levs[j])$conf.int
-  }
+}
 
   # make the row names the conf levels as percents (mutiple by 100 & add % symbol)
 rownames(ci) <- paste0(100*levs,"%") 

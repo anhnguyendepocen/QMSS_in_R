@@ -11,7 +11,7 @@
 # Setup -------------------------------------------------------------------
 # _________________________________________________________________________
 
-# set working directory (replace text inside quotes with path to the desired directory)
+# set working directory 
 setwd("INSERT PATH TO DIRECTORY") 
 
 

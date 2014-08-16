@@ -41,15 +41,15 @@ lm.angry2 <- lm(angry ~ sei + I(sei^2), data = sub)
 summary(lm.angry2)
 
 # Visualizing the curvilinear relationship
-  # with ggplot()
-g <- ggplot(sub, aes(x = sei, y = angry)) + geom_point() # scatterplot
-g
-g + geom_smooth(method = "lm", formula = y ~ poly(x, 2)) # add fitted quadratic line
+  # first make scatterplot scatterplot
+g <- ggplot(sub, aes(x = sei, y = angry)) + geom_point(color = "darkred") 
+  # add fitted quadratic curve
+g + geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = F, size = 1.5) 
 
-  # or manually with traditional R plotting functions
-    # first plot the points
+# or manually with traditional R plotting functions
+  # first plot the points
 with(sub, plot(sei, angry, pch = 20, cex = 0.8, col = "darkred"))
-    # now add the curve using the coefficients from our regression 
+  # add the curve using the coefficients from our regression 
 b <- round(lm.angry2$coef, 4)
 curve(b %*% rbind(1,x,x^2), add=T, lwd = 2, col = "darkblue")  # or equivalently b[1] + b[2]*x + b[3]*x^2 instead of b%*%rbind(1,x,x^2)
 
@@ -69,8 +69,12 @@ lm.attend <- lm(attend ~ partyid, data = sub, partyid < 7)
 summary(lm.attend)
 
 # Basic barplot of mean religious attendance for each partyid
-model.dat <- lm.attend$model # get only the obs used in fitting the model
-with(model.dat, barplot(by(attend, partyid, mean)))
+  # get only the obs used in fitting the model
+model.dat <- lm.attend$model 
+  # get mean of attend by level of partyid
+model.dat <- ddply(model.dat, "partyid", summarise, mean.attend = mean(attend))
+barplot(model.dat$mean.attend)
+
 
 # A much nicer barplot 
   # install.packages("RColorBrewer") 
@@ -88,17 +92,14 @@ image(1:levs, 1, as.matrix(1:levs), col = my.palette, axes = F) # much better
   # make labels for the bars
 bar.labs <- c("strong dem","dem","ind (dem)","ind","ind (rep)", "rep","strong rep")
   # make the barplot
-with(model.dat, 
-     barplot(by(attend, partyid, mean), 
-             col = my.palette, names = bar.labs, 
-             cex.names = 0.8, # make the names a bit smaller than the default
-             las = 2, # rotate the bar labels to be perpendicular to the axis
-             main = "Mean of attend by levels of partyid")) 
+barplot(model.dat$mean.attend, col = my.palette, names = bar.labs, 
+        cex.names = 0.8, # make the names a bit smaller than the default
+        las = 2, # rotate the bar labels to be perpendicular to the axis
+        main = "Mean of attend by levels of partyid")
 
 
 # Barplot with ggplot
-gg.dat <- ddply(model.dat, "partyid", summarise, mean.attend = mean(attend))
-g <- ggplot(gg.dat, aes(x = partyid, y = mean.attend, fill = factor(partyid))) 
+g <- ggplot(model.dat, aes(x = partyid, y = mean.attend, fill = factor(partyid))) 
 colors_and_labels <- scale_fill_manual(values = my.palette, labels = bar.labs, name = "PartyID")
 g + geom_bar(stat = "identity") + colors_and_labels
 

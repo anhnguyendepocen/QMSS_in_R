@@ -9,7 +9,7 @@
 # Setup -------------------------------------------------------------------
 # _________________________________________________________________________
 
-# set working directory (replace text inside quotes with path to the desired directory)
+# set working directory 
 setwd("INSERT PATH TO DIRECTORY") 
 
 # Load packages
@@ -40,12 +40,12 @@ g_trend <- ggplot(sub, aes(x = panelwave, y = n.confinan))
 (g_trend <- g_trend + stat_summary(fun.y=mean, geom="line", lwd = 1.25, color="navyblue"))
 
 # Empirical growth curves for idnum < 200 (& overall)
-g_growth <- ggplot(subset(sub, idnum<200), aes(x = panelwave, y = n.confinan, 
-                                           group = idnum, color = factor(idnum)))
+g_growth <- ggplot(subset(sub, idnum<200), 
+                   aes(x = panelwave, y = n.confinan, group = idnum, color = factor(idnum)))
 no_legend <- theme(legend.position="none")
 
-g_id <- g_growth + geom_line() + no_legend
-g_id + stat_summary(fun.y=mean, geom="line", aes(group=1), lty = 2, color="black")
+g_id <- g_growth + geom_line() + no_legend 
+g_id + stat_summary(fun.y=mean, geom="line", aes(group=1), lty = 2, color="black") 
 
 
 # individual regression lines for idnum < 200 (& overall)
@@ -143,5 +143,3 @@ summary(lmer.confinanM)
 # Random intercepts/random slopes for women
 lmer.confinanW <- update(lmer.confinanM, subset = sex == 2)
 summary(lmer.confinanW)
-
-

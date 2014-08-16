@@ -40,7 +40,9 @@ sub$home3 <- sub$dwelown == 3
 # If there were many more than 3 levels it could be more efficient to use a loop
 # along with the assign function.
 ?assign
-sub <- within(sub, for(i in 1:3) assign(paste0("home",i), dwelown == i) )
+sub <- within(sub, for(i in 1:3) {
+  assign(paste0("home",i), dwelown == i) 
+  })
 
 # Simple Linear Regression Model
 summary(lm(wordsum ~ home1, data = sub, !is.na(degree)))
@@ -71,7 +73,7 @@ total.diff <- with(na.omit(sub), mean(wordsum[home1==T]) - mean(wordsum[home1==F
 total.diff
 
   # now by degree level
-wordsum.tab <- ddply(.data = na.omit(sub), "degree", summarise,
+wordsum.tab <- ddply(na.omit(sub), "degree", summarise,
                      diff = mean(wordsum[home1==T]) - mean(wordsum[home1==F]))
 wordsum.tab
 
@@ -433,13 +435,15 @@ bptest(lm.tv)
 e <- lm.tv$residuals # extract residuals 
 deg <- lm.tv$model$degree # extract the obs of degree used in fitting the model
 
-# boxplot using traditional R boxplot() function 
+  # using traditional R boxplot() function 
 boxplot(e ~ factor(deg))
-# if we don't have the levels of degree named, we can pass an optional "names"
-# argument to boxplot()
-boxplot(e ~ factor(deg), names = c("<HS","HS","JrCol","BA",">BA"))
-# or can do a boxplot using ggplot package
-ggplot(NULL, aes(x = factor(deg), y = e)) + geom_boxplot()
+  # if we don't have the levels of degree named, we can pass an optional "names"
+  # argument to boxplot()
+names <- c("<HS","HS","JrCol","BA",">BA")
+boxplot(e ~ factor(deg), names = names)
+
+  # or can do a boxplot using ggplot 
+ggplot(NULL, aes(x = factor(deg, labels = names), y = e)) + geom_boxplot() + xlab("DEGREE")
 
 
 # Robust standard errors

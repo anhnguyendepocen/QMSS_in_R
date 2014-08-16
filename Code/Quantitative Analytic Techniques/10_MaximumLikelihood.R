@@ -71,7 +71,7 @@ colors <- brewer.pal(6, "Set1")
 lik <- function(p) dbinom(n.heads, n.tosses, p)
 n.tosses = 100
 n.heads = 5
-curve(lik, lwd = 2, col = colors[1], xlab = "p", ylab = "likelihood")
+curve(lik, lwd = 2, col = colors[1], xlab = "p", ylab = "likelihood", bty = "l")
 heads = c(10, 25, 50, 75, 95)
 for(i in 1:length(heads)){
   n.heads = heads[i]
@@ -159,7 +159,7 @@ plot.coinsMLE(sims = 1,
               p = 1/2,
               type = "h", lwd = 1, col = colors[1]) 
 
-for(i in 1:3){
+for (i in 1:3) {
   plot.coinsMLE(sims = reps[i], 
                 N = c(10, seq(from = 100, to = 5*10^4, by = 500)), 
                 p = 1/2,

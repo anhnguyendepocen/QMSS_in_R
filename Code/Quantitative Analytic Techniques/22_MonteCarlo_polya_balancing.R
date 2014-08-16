@@ -6,12 +6,19 @@
 # Written using R version 3.1.1 on Mac OS X 10.9.3
 
 
+# Suppose we have an urn containing one red ball and white ball. Consider two
+# different processes: 
 
+  # 1. Polya process: pick a ball from the urn, replace it and add another ball
+  # of the same color to the urn. Repeat. 
 
-# In the Polya process any proportion of reds is equally likely
-# In the Balancing process the long-run proportion of reds is 1/2
+  # 2. Balancing process: pick a ball from the urn, replace it and add another
+  # ball of the other color to the urn. Repeat. 
 
-# They both have an _expected_ proportion of heads of 1/2 
+# It turns out that in the Polya process any long-run proportion of red balls in
+# the urn is equally likely, whereas in the Balancing process the long-run 
+# proportion of reds is 1/2. Both the Polya and Balancing processes have have an
+# _expected_ proportion of heads of 1/2.
 
 
 # POLYA PROCESS -----------------------------------------------------------
