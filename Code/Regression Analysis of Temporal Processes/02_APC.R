@@ -113,5 +113,5 @@ c(Model1 = summary(lm.natcrime)$adj, Model2 = summary(lm.natcrime2)$adj)
 
 
 # Save our progress 
-rm(GSS) # remove the GSS data set. It's big and we don't need to save the whole thing again
+rm(GSS) # remove the GSS data set (it's big and we don't need to save the whole thing again)
 save.image(file = "APC.RData")

@@ -37,7 +37,7 @@ sub$n.confinan <- ReverseThis(sub$confinan)
 
 # Overall trend in confidence in banks
 g_trend <- ggplot(sub, aes(x = panelwave, y = n.confinan))
-(g_trend <- g_trend + stat_summary(fun.y=mean, geom="line", lwd = 1.25, color="navyblue"))
+(g_trend <- g_trend + stat_summary(fun.y=mean, geom="line", lwd = 1.25))
 
 # Empirical growth curves for idnum < 200 (& overall)
 g_growth <- ggplot(subset(sub, idnum<200), 
@@ -122,8 +122,10 @@ summary(lmer.confinan5)
 # _________________________________________________________________________
 
 # changes in confidence in banks, by sex
+colors_and_labels <- scale_color_manual(values = c("red3", "cyan3"), name = "")
 g_sex <- ggplot(sub, aes(x = panelwave, y = n.confinan, color = male))
 (g_sex <- (g_sex + stat_summary(fun.y=mean, geom="line", lwd = 1.25)))
+g_sex + colors_and_labels
 
 lmer.confinan6 <- update(lmer.confinan5, ~ . + male:panelwave - polviews)
 summary(lmer.confinan6)
@@ -131,7 +133,8 @@ summary(lmer.confinan6)
 model.dat <- cbind(model.frame(lmer.confinan6), fitted = fitted(lmer.confinan6))
 model.dat <- subset(model.dat, idnum < 200)
 g_sex_fit <- ggplot(model.dat, aes(x = panelwave, y = fitted, group = idnum, color = male))
-(g_sex_fit <- g_sex_fit + geom_line() + geom_point() + facet_grid( . ~ male))
+(g_sex_fit <- g_sex_fit + geom_line() + geom_point() + facet_grid( . ~ male)) 
+g_sex_fit + colors_and_labels
 
 
 

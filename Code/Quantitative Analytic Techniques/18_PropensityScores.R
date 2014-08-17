@@ -17,19 +17,18 @@ setwd("INSERT PATH TO DIRECTORY")
 # Load the panel dataset 
 load("GSS_panel.RData")
 
-# Install Matching package
-# install.packages("Matching")
 
 # Load packages
 library(QMSS)
-library(Matching)
-
-
 
 
 
 # Propensity Score Matching -----------------------------------------------
 # _________________________________________________________________________
+
+# Install Matching package
+# install.packages("Matching")
+library(Matching)
 
 vars <- c("year", "happy", "marital", "born", "parborn", "region",
           "wordsum", "educ", "paeduc", "madeg", "incom16", "sex")

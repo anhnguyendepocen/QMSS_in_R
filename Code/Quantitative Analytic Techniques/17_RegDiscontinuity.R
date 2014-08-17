@@ -16,10 +16,9 @@ setwd("INSERT PATH TO DIRECTORY")
 
 # load packages
 library(QMSS)
-library(memisc)
+library(ggplot2)
 library(plyr)
-library(psych)
-library(visreg)
+
 
 # Load the cumulative GSS dataset 
 load("GSS.RData")
@@ -35,14 +34,18 @@ sub <- na.omit(sub)
 
 Tab(sub$godoc)
 sub$n.godoc <- mapvalues(sub$godoc, from = 1:2, to = 1:0)
-
+with(sub, table(godoc, n.godoc))
 
 
 # plot mean of age vs mean(n.godoc)
 by.age <- ddply(sub, "age", summarize, mean.godoc = mean(n.godoc))
-with(by.age, plot(age, mean.godoc, type = "l", lwd = 2, col = "purple4", bty = "l"))
-abline(v = 65, lty = 2, col = "darkgray")
-text(65, .2, "Age = 65", col = "darkgray", pos = 2, srt = 90)
+g_by.age <- ggplot(by.age, aes(x = age, y = mean.godoc)) + geom_line(color = "red3")
+g_by.age
+  # add vertical line at age = 65
+g_by.age + geom_vline(xintercept = 65, lty = 2)
+  # label the line
+label_65 <- annotate("text", x = 63, y = 0.15, label = "Age = 65", angle = 90)
+g_by.age + geom_vline(xintercept = 65, lty = 2) + label_65
 
 
 # make the slopes for younger than 65 and older than 65
@@ -62,13 +65,11 @@ sub$yhat <- predict(lm.godoc) # get fitted values
 ddply(sub, "age", summarize, yhat = mean(yhat), freq = length(age))
 
 # plot the discontinuity
-with(sub,{
-  plot(age, yhat, type = "n")
-  lines(age[age < 65], yhat[age < 65], col = "turquoise", lwd = 2)
-  lines(age[age >= 65], yhat[age >= 65], col = "purple", lwd = 2)
-  abline(v = 65, col = "yellow", lwd = 3)
-  text(65, .2, "Age = 65", col = "darkgray", pos = 2, srt = 90)
-})
+no_legend <- theme(legend.position = "none")
+g_disc <- ggplot(sub, aes(x = age, y = yhat, group = intY, color = factor(intY))) + no_legend
+g_disc + geom_line(size = 1.25) + geom_vline(xintercept = 65, lty = 2) + label_65
+
+
 
 
 # ￼Another way to model this
@@ -100,7 +101,7 @@ rd.godoc <- RDestimate(n.godoc ~ age, data = sub, cutpoint = 65)
 summary(rd.godoc)
 plot(rd.godoc)
 
-# or use custom RDplot function in QMSS package
+# or use RDplot function in QMSS package
 ?RDplot
 RDplot(rd.godoc, col = c("blue", "green"), pts = T, xlab = "Age") 
 

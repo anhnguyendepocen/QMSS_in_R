@@ -57,10 +57,9 @@ by.year.ts <- na.approx(by.year.ts)
 
 # only keep up 1983 to 1992
 by.year.ts <- ts(by.year.ts[by.year.ts[,"year"] %in% 1983:1992,], start = 1983, end = 1992)
-
 plot(by.year.ts[,c("attend", "pray")])
 plot.dat <- meltMyTS(by.year.ts, time.var = "year")
-ggMyTS(plot.dat) 
+ggMyTS(plot.dat)
 
 
 # correlations

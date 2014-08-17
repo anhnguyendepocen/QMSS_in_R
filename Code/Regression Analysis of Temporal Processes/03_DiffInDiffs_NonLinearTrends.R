@@ -137,7 +137,7 @@ by.year_period <- ddply(sub, "year", summarise,
 by.year_period <- melt(by.year_period, id.vars = "year")
 g_period <- ggplot(by.year_period, aes(x = year, y = value, 
                                        group = variable, color = variable))
-g_period2 + geom_point(size = 3) + geom_line()
+g_period + geom_point(size = 3) + geom_line()
 
 
 
@@ -215,8 +215,8 @@ sub$yhat <- predict(lm.natcrime_lspInteraction)
 yhat.by.age <- ddply(sub, c("age.cut", "year"), summarise, yhat = mean(yhat))
 legend_options <- theme(legend.position = "bottom", 
                         legend.title = element_text(face = "italic"))
-g_yhat.by.age <- ggplot(yhat.by.age, aes(x=year, y=yhat, g
-                                         roup=age.cut, color=factor(age.cut)))
+g_yhat.by.age <- ggplot(yhat.by.age, aes(x=year, y=yhat, 
+                                         group=age.cut, color=factor(age.cut)))
 g_yhat.by.age + geom_line() + legend_options
 
 # Graphing cohort*period interactions over time
@@ -224,3 +224,4 @@ yhat.by.cohort <- ddply(sub, c("cohort.cut", "year"), summarise, yhat = mean(yha
 g_yhat.by.cohort <- ggplot(yhat.by.cohort, aes(x=year, y=yhat, 
                                                group=cohort.cut, color=factor(cohort.cut))) 
 g_yhat.by.cohort + geom_line() + legend_options
+

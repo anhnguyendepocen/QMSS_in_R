@@ -15,10 +15,9 @@ setwd("INSERT PATH TO DIRECTORY")
 
 # load packages
 library(QMSS)
-library(memisc)
+library(ggplot2)
 library(plyr)
-library(psych)
-library(visreg)
+
 
 # Load the cumulative GSS dataset 
 load("GSS.RData")
@@ -129,9 +128,10 @@ overall
 
 # plot coef on white vs. mean fitted for each sampyear
 regs.df <- data.frame(t(regs))
+no_legend <- theme(legend.position = "none") 
 g_white_vs_fitted <- ggplot(regs.df, aes(x = b_white, y = mean.fitted, 
                                          color = factor(mean.fitted))) 
-g_white_vs_fitted <- g_white_vs_fitted + theme(legend.position = "none") 
+g_white_vs_fitted <- g_white_vs_fitted + no_legend
 g_white_vs_fitted + geom_point()
 
 # add a larger point showing the overall means
@@ -139,7 +139,7 @@ mean_point <- annotate("point", x = overall[2], y = overall[3], color = "navyblu
 g_white_vs_fitted + geom_point() + mean_point
 
 # plot coef on white vs. intercept for each sampyear
-g_white_vs_const <- ggplot(regs.df, aes(x = b_white, y = b_const)) + theme(legend.position = "none") 
+g_white_vs_const <- ggplot(regs.df, aes(x = b_white, y = b_const)) + no_legend
 g_white_vs_const + geom_point(aes(color = factor(b_const))) + stat_smooth(method = "lm", se = F)
 
 
@@ -179,7 +179,7 @@ plotdata <- data.frame(fitted = fitted(lmer.closeblk3),
                        white = sub$white)
 
 g_closeblk <- ggplot(plotdata, aes(x = pct.black, y = fitted, group = white, color = white))
-g_closeblk + stat_smooth(method = "lm", se = F) + theme(legend.position = "bottom") 
+g_closeblk + stat_smooth(method = "lm", se = F, size = 1.25) + no_legend
 
 
 
@@ -198,21 +198,18 @@ sub$n.satfin <- ReverseThis(sub$satfin)
 summary(lm(n.satfin ~ I(log(realinc)) + as.factor(panelwave), data = sub))
 
 ### With Fixed Effects ###
-summary(
-  plm(n.satfin ~ I(log(realinc)) + panelwave, data = sub,
+summary(plm(n.satfin ~ I(log(realinc)) + panelwave, data = sub,
             index = c("idnum", "panelwave"), model = "within"))
 
 ### Correlated Random Effects ###
   # get mean of log(realinc) by idnum
 sub <- ddply(sub, "idnum", mutate, mean.lnrealinc = mean(log(realinc), na.rm = T))
-summary(
-  plm(n.satfin ~ I(log(realinc)) + mean.lnrealinc + panelwave, data = sub,
+summary(plm(n.satfin ~ I(log(realinc)) + mean.lnrealinc + panelwave, data = sub,
             index = c("idnum", "panelwave"), model = "random"))
 
   # add variable to sub containing max of race by idnum
 sub <- ddply(sub, "idnum", mutate, max.race = max(race, na.rm = T))
-summary(
-  plm(n.satfin ~ I(log(realinc)) + mean.lnrealinc + as.factor(max.race) 
+summary(plm(n.satfin ~ I(log(realinc)) + mean.lnrealinc + as.factor(max.race) 
       + as.factor(sex) + panelwave, data = sub, 
       index = c("idnum", "panelwave"), model = "random"))
 

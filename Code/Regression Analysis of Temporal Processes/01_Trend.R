@@ -67,7 +67,8 @@ by.year.sex <- ddply(sub, c("year", "sex"), summarise,
                  mean = mean(n.natcrime, na.rm = T))
 
   # define some labels and colors to use
-color_and_labels <- scale_color_manual(values = c("navyblue", "darkred"), labels = c("Male","Female"), name = "")
+color_and_labels <- scale_color_manual(values = c("navyblue", "darkred"), 
+                                       labels = c("Male","Female"), name = "")
   # set up the plot (declare x, y, grouping and coloring by sex)
 g_by.year.sex <- ggplot(by.year.sex, aes(x=year, y=mean, group=sex, color = factor(sex))) 
 
@@ -86,7 +87,6 @@ g_quad + color_and_labels
   # use a cubic fit 
 g_cubic <- g_by.year.sex + stat_smooth(method = "lm", formula = y ~ poly(x,3), se = F, lty = 2)
 g_cubic + color_and_labels
-
 
 
 
@@ -139,7 +139,7 @@ g_resids.by.year
 g_resids.by.year + ylab("")
 
 # It's annoying to add a legend to a plot like this in ggplot because the way
-# our data resids.by.year is structured there's no grouping variable (like sex).
+# our data resids.by.year is structured there's no grouping variable (e.g. gender).
 # But we can use a better strategy that makes it easier to make the plot and
 # allows for much more flexibility with the legends, layout, etc:
 
@@ -211,7 +211,7 @@ pred.dat <- data.frame(pred.dat, p =  predict(ols.natcrime4, pred.dat))
 
 # plot lines for males and females separately
 g_by.sex <- ggplot(data = pred.dat, aes(x=year, y=p, color=male)) 
-g_by.sex + stat_smooth(method = lm, lwd = 1.5) + ylab("predicted value")
+g_by.sex + stat_smooth(method = lm, size = 1.25) + ylab("predicted value")
 
 
 # Logit -------------------------------------------------------------------
@@ -250,7 +250,7 @@ logit.preds <- melt(logit.preds, id.vars = "year")
 
 gg_logit.preds <- ggplot(logit.preds, 
                          aes(x = year + 1973, y = value, group = variable, color = variable))
-gg_logit.preds + geom_line() + xlab("year")
+gg_logit.preds + geom_line(size = 1.25) + xlab("year")
 
 
 # Ordinal logit -----------------------------------------------------------

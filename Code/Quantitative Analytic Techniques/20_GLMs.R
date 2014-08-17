@@ -39,10 +39,7 @@ sub <- sub[keep, ]
 summary(sub$numwomen)
 
 # histogram of numwomen
-ggplot(sub, aes(numwomen))  + geom_histogram(fill = "purple4")
-
-# histogram of numwomen by sex
-ggplot(sub, aes(numwomen, fill = factor(sex)))  + geom_histogram(position="dodge") 
+qplot(sub$numwomen) # qplot is a quick way to make a plot, letting ggplot choose the default geom (plot type)
 
 
 # start with OLS
@@ -122,7 +119,8 @@ gamma.realinc2 <- glm(realinc ~ age + I(age^2) + as.factor(marital) + educ,
 
 # Compare coefficients
   # make a list of the models
-models <- list(OLS = lm.realinc, "Gamma(identity)" = gamma.realinc,
+models <- list("OLS" = lm.realinc, "Gamma(identity)" = gamma.realinc,
                "OLS(log)" =  lm.realinc2, "Gamma(log)" = gamma.realinc2)
   # apply the coef function to each model in the models list
-sapply(X = models, FUN = coef)
+coef.comparison <- sapply(X = models, FUN = coef)
+round(coef.comparison, 3)
