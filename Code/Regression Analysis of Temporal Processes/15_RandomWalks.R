@@ -12,7 +12,7 @@ library(reshape2)
 # Function to generate N_walks random walks of length N_steps with y[1] = init,
 # y[t+1] = y[t] + Normal(0,1)
 random_walks <- function(N_walks, N_steps, init = 0) {
-  walk <- function() {
+  walk <- function(...) {
     y <- c(init, rep(NA, N_steps - 1))
     for(i in 2:N_steps){
       y[i] <- y[i-1] + rnorm(1)
@@ -25,49 +25,56 @@ random_walks <- function(N_walks, N_steps, init = 0) {
 
 
 # Function to plot the random walks
-gg_random_walks <- function(walks) {
-  require(ggplot2)
-  require(reshape2)
-  
-  molten.walks <- melt(walks, varnames = c("t", "Walk"))
-  gg_walks <- ggplot(molten.walks, aes(x = t, y = value, group = Walk, color = factor(Walk)))
-  
-  # make plot title
+plot_random_walks <- function(walks) {
   title <- paste("N_walks =", ncol(walks), 
                  " |  N_steps =", nrow(walks), 
                  " |  initial value =", walks[1,1])
   
-  # display overall average value and average value at last step 
+  plot(ts(walks), plot.type = "single", bty = "l", col = rainbow(ncol(walks)),
+       main = "", xlab = title, ylab = "")
+  
   mean <- round(mean(walks), 2)
-  mean_lab1 <- paste("Overall Avg. Value =", mean)
-  mean_end <- round(mean(walks[nrow(walks), ]), 2)
-  mean_lab2 <- paste("Avg. Value at Final Step =", mean_end)
+  mean_lab <- paste("Overall Mean :", mean)
+  var <- round(mean(apply(walks, 2, var)), 2)
+  var_lab1 <- paste0("Avg. Variance at t_", nrow(walks), " : ", var)
+  var_half <- round(mean(apply(walks[1:nrow(walks)/2,], 2, var)), 2)
+  var_lab2 <- paste0("Avg. Variance at t_", nrow(walks)/2, " : ", var_half)
   
-  t_range <- range(molten.walks$t)
-  mean_labs <- annotate("text", 
-                        x = t_range + t_range[2]*c(1/5,-1/5), 
-                        y = max(walks) + 10, 
-                        label = c(mean_lab1, mean_lab2))
-  
-  gg_out <- (gg_walks + geom_line() + theme(legend.position = "none") 
-             + ggtitle(title) + mean_labs)
-  gg_out
+  mtext(var_lab1, side = 3, cex = 0.9)
+  mtext(var_lab2, side = 3, line = 1, cex = 0.9)
+  mtext(mean_lab, side = 3, line = 2, cex = 0.9)
 }
 
 
-# 1 random walk of length 50, init = 0
-walk_sims_1_50 <- random_walks(N_walks = 1, N_steps = 50)
-gg_random_walks(walk_sims_1_50)
+# 2 random walks of length 50, init = 0
+walk_sims_2_50 <- random_walks(N_walks = 2, N_steps = 50)
+plot_random_walks(walk_sims_2_50)
 
 # 30 random walks, each of length 50, init = 0
 walk_sims_30_50 <- random_walks(N_walks = 30, N_steps = 50)
-gg_random_walks(walk_sims_30_50)
+plot_random_walks(walk_sims_30_50)
 
 # 30 random walks, each of length 50, init = 10
 walk_sims_30_50_init10 <- random_walks(N_walks = 30, N_steps = 50, init = 10)
-gg_random_walks(walk_sims_30_50_init10)
+plot_random_walks(walk_sims_30_50_init10)
 
 # 15 random walks, each of length 1000, init = 0
 walk_sims_15_1000 <- random_walks(N_walks = 15, N_steps = 1000)
-gg_random_walks(walk_sims_15_1000)
+plot_random_walks(walk_sims_15_1000)
+
+
+# Look at how the average value of the walks stays roughly constant while the
+# average variance of the walks continues to grow as t increases
+mean <- 0
+var <- 0
+for (j in 2:nrow(walk_sims_15_1000)) {
+  mean <- c(mean, mean(walk_sims_15_1000[1:j, ]))
+  var <- c(var, mean(apply(walk_sims_15_1000[1:j, ], 2, var)))
+}
+line_cols <- c("red3", "blue3")
+plot(ts(cbind(var, mean)), plot.type = "single", bty = "l", 
+     col = line_cols, ylab = "", xlab = "t")
+text(x = 500, y = var[500] - 5, labels = "Avg. Variance", pos = 1, col = line_cols[1])
+text(x = 500, y = mean[500], labels = "Avg. Value", pos = 3, col = line_cols[2])
+
 
