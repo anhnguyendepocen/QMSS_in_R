@@ -23,6 +23,7 @@ random_walks <- function(N_walks, N_steps, init = 0) {
   replicate(N_walks, walk(N_steps))
 }
 
+
 # Function to plot the random walks
 gg_random_walks <- function(walks) {
   require(ggplot2)
@@ -41,9 +42,12 @@ gg_random_walks <- function(walks) {
   mean_lab1 <- paste("Overall Avg. Value =", mean)
   mean_end <- round(mean(walks[nrow(walks), ]), 2)
   mean_lab2 <- paste("Avg. Value at Final Step =", mean_end)
+  
   t_range <- range(molten.walks$t)
-  mean_labs <- annotate("text", x = t_range + t_range[2]*c(1/5,-1/5), y = max(walks) + 10, 
-                       label = c(mean_lab1, mean_lab2))
+  mean_labs <- annotate("text", 
+                        x = t_range + t_range[2]*c(1/5,-1/5), 
+                        y = max(walks) + 10, 
+                        label = c(mean_lab1, mean_lab2))
   
   gg_out <- (gg_walks + geom_line() + theme(legend.position = "none") 
              + ggtitle(title) + mean_labs)
