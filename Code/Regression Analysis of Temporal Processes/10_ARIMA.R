@@ -32,7 +32,7 @@ load("GSS.RData")
 
 
 
-# Another time series problem ---------------------------------------------
+# Another worked example, with some AR(1) after trend ---------------------
 # _________________________________________________________________________
 
 # For 1975-1992: does an increasing percentage of people under 50 with BAs lead
@@ -103,7 +103,7 @@ acf(e, col = "red", lwd = 2, ci.type = "ma")
 dwtest(lm.married) # Durbin-Watson test
 bgtest(lm.married) # Breusch-Godfrey test
 
-# include year trend and use robust std errors 
+# include year trend 
 lm.married2 <- lm(marriedlt50_pct ~ degreelt50_pct + year, data = by.year.ts)
 summary(lm.married2)
 

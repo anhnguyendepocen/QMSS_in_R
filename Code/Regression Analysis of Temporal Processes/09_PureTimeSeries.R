@@ -64,7 +64,7 @@ by.year.ts <- mutate(by.year.ts,
                      degreelt50_pct = degreelt50*100)
 
 # only keep up to 1992 and convert back to time series object
-by.year.ts <- ts(subset(by.year.ts, year <= 1992))
+by.year.ts <- ts(subset(by.year.ts, year <= 1992), start = 1972, end = 1992)
 
 # correlations
 cor.vars <- c("n.confinan", "fulltime_pct", "repub_pct", "degreelt50_pct", "year")
@@ -177,9 +177,10 @@ mean.dat <- data.frame(year = by.year.ts[,"year"], mean = mean.confinan[-1])
  + geom_point(size = 3))
 
 # stationarity: standard deviation
-sd.confinan <- apply(cbind(Lag.confinan, by.year.ts[,"n.confinan"]),1,sd,na.rm=T)
+sd.confinan <- apply(cbind(Lag.confinan, by.year.ts[,"n.confinan"]), 1, sd, na.rm=T)
 sd.dat <- data.frame(year = by.year.ts[,"year"], sd = sd.confinan[-1])
 ggplot(sd.dat, aes(x=year, y=sd)) + geom_bar(stat = "identity") 
+
  
 
 
