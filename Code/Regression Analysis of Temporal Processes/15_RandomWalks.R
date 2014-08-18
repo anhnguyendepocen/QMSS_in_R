@@ -5,9 +5,6 @@
 # Author: Jonah Gabry (jsg2201@columbia.edu)
 # Written using R version 3.1.1 on Mac OS X 10.9.3
 
-library(ggplot2)
-library(reshape2)
-
 
 # Function to generate N_walks random walks of length N_steps with y[1] = init,
 # y[t+1] = y[t] + Normal(0,1)
@@ -65,16 +62,35 @@ plot_random_walks(walk_sims_15_1000)
 
 # Look at how the average value of the walks stays roughly constant while the
 # average variance of the walks continues to grow as t increases
-mean <- 0
-var <- 0
-for (j in 2:nrow(walk_sims_15_1000)) {
-  mean <- c(mean, mean(walk_sims_15_1000[1:j, ]))
-  var <- c(var, mean(apply(walk_sims_15_1000[1:j, ], 2, var)))
+plot_mean_var <- function(walks) {
+  title <- paste("N_walks =", ncol(walks), 
+                 " |  N_steps =", nrow(walks), 
+                 " |  initial value =", walks[1,1])
+  
+  mean <- walks[1,1]
+  var <- 0
+  for (j in 2:nrow(walks)) {
+    mean <- c(mean, mean(walks[1:j, ]))
+    var <- c(var, mean(apply(walks[1:j, ], 2, var)))
+  }
+  line_cols <- c("red3", "blue3")
+  plot(ts(cbind(var, mean)), plot.type = "single", bty = "l",
+       ylim = c(min(mean, var), max(mean, var) + 3),
+       col = line_cols, ylab = "", xlab = title)
+  
+  txt_x <- nrow(walks)/2
+  text(x = txt_x, y = c(var[txt_x], mean[txt_x]), pos = c(4,3), col = line_cols,
+       labels = c("Avg. Variance", "Avg. Value"))
 }
-line_cols <- c("red3", "blue3")
-plot(ts(cbind(var, mean)), plot.type = "single", bty = "l", 
-     col = line_cols, ylab = "", xlab = "t")
-text(x = 500, y = var[500] - 5, labels = "Avg. Variance", pos = 1, col = line_cols[1])
-text(x = 500, y = mean[500], labels = "Avg. Value", pos = 3, col = line_cols[2])
+
+plot_mean_var(walk_sims_30_50_init10)
+plot_mean_var(walk_sims_15_1000)
 
 
+# Look at plot of walks and plot of mean/variance side by side
+par(mfrow = c(2,1))
+plot_random_walks(walk_sims_15_1000)
+plot_mean_var(walk_sims_15_1000)
+
+plot_random_walks(walk_sims_30_50_init10)
+plot_mean_var(walk_sims_30_50_init10)
