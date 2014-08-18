@@ -1,5 +1,5 @@
 ## to do:
-  # figure out unit root test stuff for all example
+  # figure out unit root test stuff for all examples
     # ?ur.ers
     # ?embed
     # help(package = "fUnitRoots")
@@ -114,35 +114,40 @@ plot(e2)
 dwtest(lm.married2) 
 bgtest(lm.married2) 
 
-# Dickey-Fuller Unit Root Test
-
-# install.packages("fUnitRoots")
+# Unit Root Tests
+  # install.packages("fUnitRoots")
 library(fUnitRoots)
-urersTest(by.year.ts[,"marriedlt50_pct"], lag.max = 0)
-adfTest(by.year.ts[,"marriedlt50_pct"], lags = 0)
-adfTest(by.year.ts[,"marriedlt50_pct"], lags = 1)  
 
-library(urca)
-summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 0))
-summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 1))
+  # many many different unit root tests
+?UnitrootTests
+?UnitrootUrcaInterface
+
+adfTest(by.year.ts[,"marriedlt50_pct"], lags = 0)
+unitrootTest(by.year.ts[,"marriedlt50_pct"], lags = 0)
+adfTest(by.year.ts[,"marriedlt50_pct"], lags = 1) 
+unitrootTest(by.year.ts[,"marriedlt50_pct"], lags = 1)
+
 urdfTest(by.year.ts[,"marriedlt50_pct"], lags = 8)
+urersTest(by.year.ts[,"marriedlt50_pct"], lag.max = 8)
+
 
   # add trend
 summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 0, type = "trend"))
+summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 1, type = "trend"))
 summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 8, type = "trend"))
   # add drift
 summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 0, type = "drift"))
+summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 1, type = "drift"))
 summary(ur.df(by.year.ts[,"marriedlt50_pct"], lags = 8, type = "drift"))
 
 
 # Phillips-Perron test
-PP.test(by.year.ts[,"marriedlt50_pct"])
 summary(ur.pp(by.year.ts[,"marriedlt50_pct"], model = "trend"))
 
 
 # What do we do if we have unit roots: 
   # difference the data
-lm.Dmarried <- lm(firstD(marriedlt50_pct) ~ firstD(D.degreelt50_pct) + year, data = by.year.ts)
+lm.Dmarried <- lm(firstD(marriedlt50_pct) ~ firstD(degreelt50_pct) + year, data = by.year.ts)
 summary(lm.Dmarried)
 e3 <- lm.Dmarried$resid
 acf(e3, col = "red", lwd = 2, ci.type = "ma") 
@@ -157,17 +162,15 @@ bgtest(lm.Dmarried, order = 4)
 # ARIMA -------------------------------------------------------------------
 # _________________________________________________________________________
 
+xvars <- by.year.ts[,c("degreelt50_pct", "year")]
+
 # ARIMA(1,0,0) = AR(1)
-arima.married100 <- arima(by.year.ts[,"marriedlt50_pct"], 
-                       order = c(1,0,0), 
-                       xreg = by.year.ts[,c("degreelt50_pct", "year")])
+arima.married100 <- arima(by.year.ts[,"marriedlt50_pct"], order = c(1,0,0), xreg = xvars)
 arima.married100
 tsdiag(arima.married100)
 
 # ARIMA(0,1,0) = First differences
-arima.married010 <- arima(by.year.ts[,"marriedlt50_pct"], 
-                          order = c(0,1,0), 
-                          xreg = by.year.ts[,c("degreelt50_pct","year")])
+arima.married010 <- update(arima.married100, order = c(0,1,0))
 arima.married010
 tsdiag(arima.married010)
 
@@ -189,11 +192,12 @@ Diff.dat <- cbind(year = by.year.ts[,"year"],
                   D2.degreelt50_pct = diff(by.year.ts[,"degreelt50_pct"], diff = 2))
 Diff.dat <- meltMyTS(Diff.dat, "year")
 
-(ggMyTS(Diff.dat, varlist = c("marriedlt50_pct", "D1.marriedlt50_pct", "D2.marriedlt50_pct"))
- + theme(axis.text.x = element_text(angle = 90)))
+rotate_xlabs <- theme(axis.text.x = element_text(angle = 90))
+varlist.married <- c("marriedlt50_pct", "D1.marriedlt50_pct", "D2.marriedlt50_pct")
+varlist.degree <- c("degreelt50_pct", "D1.degreelt50_pct", "D2.degreelt50_pct")
+ggMyTS(Diff.dat, varlist = varlist.married) + rotate_xlabs
+ggMyTS(Diff.dat, varlist = varlist.degree) + rotate_xlabs
 
-(ggMyTS(Diff.dat, varlist = c("degreelt50_pct", "D1.degreelt50_pct", "D2.degreelt50_pct"))
- + theme(axis.text.x = element_text(angle = 90)))
 
 # Box-Pierce (a.k.a portmanteau) test for white noise 
 # install.packages("TSA")
@@ -201,10 +205,8 @@ library(TSA)
 LB.test(arima.married520, type = "Box-Pierce")
 
 
-# ARIMA(5,1,0) = WTF?
-arima.married510 <- arima(by.year.ts[,"marriedlt50_pct"], 
-                          order = c(5,1,0), 
-                          xreg = by.year.ts[,"degreelt50_pct"])
+# ARIMA(5,1,0) 
+arima.married510 <- update(arima.married520, order = c(5,1,0))
 arima.married510
 tsdiag(arima.married510)
 LB.test(arima.married510, type = "Box-Pierce")
@@ -226,14 +228,13 @@ plot.dat <- summarise(fatal.unemp,
                       unemployment = unempl)
 plot.dat <- melt(plot.dat, id.vars = "year")
 
-year_xlabs <- scale_x_continuous(breaks = seq(1948,2012,4)) 
-rotate_xlabs <-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5)) 
+year_labs <- scale_x_continuous(breaks = seq(1948,2012,4)) 
+axis_and_legend_opts <- theme(axis.text.x = element_text(angle = 60, vjust = 0.5), 
+                              legend.position = "bottom") 
 
 gg_fatal <- ggplot(plot.dat, aes(x = year, y = value, group = variable, color = variable)) 
-gg_fatal + geom_line(size = 1) + stat_smooth(method = "lm", se = F, lty = 2)
-gg_fatal + year_xlabs + rotate_xlabs + geom_line(size = 1) + stat_smooth(method = "lm", se = F, lty = 2)
-
-
+(gg_fatal + geom_line(size = 1) + stat_smooth(method = "lm", se = F, lty = 2) 
+ + year_labs + axis_and_legend_opts)
 
 
 # First model
