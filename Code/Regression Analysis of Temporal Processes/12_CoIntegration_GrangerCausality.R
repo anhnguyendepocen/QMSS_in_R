@@ -64,8 +64,7 @@ grangertest(degreelt50 ~ marriedlt50, order = 3, data = by.year.ts)
 
 
 # Using vector autoregressive model
-
-# install.packages("vars")
+  # install.packages("vars")
 library(vars)
 
 var.married <- VAR(by.year.ts[,c("marriedlt50", "degreelt50")], p = 2)

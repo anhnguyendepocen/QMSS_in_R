@@ -1,5 +1,5 @@
 ## to do:
-    # figure out unit root test stuff for all examples
+    # unit root tests for all examples
     # AR(1)-corrected fixed effects model
     # AR(1)-corrected 1st differences model
 
@@ -44,22 +44,32 @@ vars <- c("attend", "pray", "year")
 sub <- GSS[, vars]
 sub$pray <- ReverseThis(sub$pray)
 
+
 # get means by year
 by.year <- aggregate(sub[,c("attend", "pray")], list(year = sub$year), mean, na.rm = T)
+print(by.year, digits = 3)
 
 # interpolate for missing year 1992
-by.year[30, "year"] <- 1992
+by.year[nrow(by.year) + 1, "year"] <- 1992
 by.year <- arrange(by.year, year)
-by.year.ts <- ts(by.year)
-by.year.ts <- na.approx(by.year.ts)
-
-
+by.year.ts <- na.approx(ts(by.year))
 
 # only keep up 1983 to 1992
-by.year.ts <- ts(by.year.ts[by.year.ts[,"year"] %in% 1983:1992,], start = 1983, end = 1992)
-plot(by.year.ts[,c("attend", "pray")])
+
+by.year.ts <- by.year.ts[by.year.ts[,"year"] %in% 1983:1992, ]
+by.year.ts <-  ts(by.year.ts, start = 1983, end = 1992)
+plot(by.year.ts[,c("attend", "pray")], plot.type = "single", col = c("blue3", "red3"))
+legend("topright", bty = "n", lwd = 1, legend = c("attend", "pray"), col = c("blue3", "red3"))
+
 plot.dat <- meltMyTS(by.year.ts, time.var = "year")
 ggMyTS(plot.dat)
+
+# custom_xlabs is a function in the QMSS package that makes it quicker to
+# customize the appearance of the x-axis text / tick labels
+?custom_xlabs
+ggMyTS(plot.dat) + custom_xlabs(angle = 65)
+
+
 
 
 # correlations
@@ -86,20 +96,20 @@ dynlm(pray ~ L(attend, 0:2) + year, data = by.year.ts)
 dynlm(pray ~ L(attend, 0:3) + year, data = by.year.ts)
 
 # The fading out of lags
-coefs <- coef(dynlm(pray ~ L(attend, 0:3) + year, data = by.year.ts))
-coefs
-coefs <- coefs[-c(1,6)]
-coefs <- round(coefs,2)
-coefs
-coef.names <- paste0("b_",0:3)
-q_fading <- qplot(x = coef.names, coefs, geom="bar", 
-                  stat="identity", fill = coef.names)
+b <- coef(dynlm(pray ~ L(attend, 0:3) + year, data = by.year.ts))
+b
+b <- coefs[-c(1,6)]
+b <- round(coefs,2)
+b
+coefs <- paste0("b_",0:3)
+q_fading <- qplot(x = coefs, y = b, geom="bar", stat="identity", fill = coefs)
 q_fading + ggtitle("The fading out of lags")
 
+
 # Cumulative lags
-coef.names <- paste0("c.b_",0:3)
-q_cumulative <- qplot(x = coef.names, y = cumsum(coefs), geom="bar", 
-                      stat="identity", fill = coef.names)
+coefs <- paste0("c.b_",0:3)
+q_cumulative <- qplot(x = coefs, y = cumsum(b), geom="bar", 
+                      stat="identity", fill = coefs)
 q_cumulative + ggtitle("Cumulative lags")
 
 # Finite distributed lag process w/ diffs
@@ -122,7 +132,9 @@ summary(by.year.ts)
 ldv.married <- dynlm(marriedlt50 ~ L(marriedlt50) + degreelt50 + year, data = by.year.ts)
 
 # look for autocorrelation
-qplot(x = 1973:1992, y = ldv.married$resid, geom = c("line","point")) + xlab("year") + ylab("residual")
+gg_ac <- (qplot(x = 1973:1992, y = ldv.married$resid, geom = c("line","point")) 
+          + xlab("year") + ylab("residual"))
+gg_ac + scale_x_continuous(breaks = seq(1973, 1992, 2)) + custom_xlabs(angle = 65)
 bgtest(ldv.married)
 
 
@@ -135,7 +147,7 @@ bgtest(ldv.married)
 vars <- c("year", "region", "sex", "age", "marital", "degree")
 sub <- GSS[, vars]
 
-# Recodes (using mutate from plyr, but could also use within(sub, ) )
+# Recodes using mutate from plyr
 sub <- mutate(sub, 
               married = ifelse(marital == 1, 1, 0),
               baplus = ifelse(degree >= 3, 1, 0),
@@ -197,6 +209,7 @@ summary(purtest(rdat, pmax = 1, test = "levinlin"))
 
 # Hadri test that no panels have unit root 
 purtest(rdat, pmax = 1, exo = "trend", test = "hadri")
+
 
 
 Panel.set <- plm.data(by.year.region, index = c("region", "year"))

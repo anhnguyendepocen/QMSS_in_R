@@ -31,15 +31,15 @@ plot_random_walks <- function(walks) {
        main = "", xlab = title, ylab = "")
   
   mean <- round(mean(walks), 2)
-  mean_lab <- paste("Overall Mean :", mean)
   var <- round(mean(apply(walks, 2, var)), 2)
-  var_lab1 <- paste0("Avg. Variance at t_", nrow(walks), " : ", var)
   var_half <- round(mean(apply(walks[1:nrow(walks)/2,], 2, var)), 2)
-  var_lab2 <- paste0("Avg. Variance at t_", nrow(walks)/2, " : ", var_half)
+
   
-  mtext(var_lab1, side = 3, cex = 0.9)
-  mtext(var_lab2, side = 3, line = 1, cex = 0.9)
-  mtext(mean_lab, side = 3, line = 2, cex = 0.9)
+  mtext(paste0("Avg. Variance at t_", nrow(walks), " : ", var), 
+        side = 3, cex = 0.9)
+  mtext(paste0("Avg. Variance at t_", nrow(walks)/2, " : ", var_half), 
+        side = 3, line = 1, cex = 0.9)
+  mtext(paste0("Overall Mean : ", mean), side = 3, line = 2, cex = 0.9)
 }
 
 
@@ -91,6 +91,3 @@ plot_mean_var(walk_sims_15_1000)
 par(mfrow = c(2,1))
 plot_random_walks(walk_sims_15_1000)
 plot_mean_var(walk_sims_15_1000)
-
-plot_random_walks(walk_sims_30_50_init10)
-plot_mean_var(walk_sims_30_50_init10)

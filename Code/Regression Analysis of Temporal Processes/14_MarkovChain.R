@@ -1,12 +1,14 @@
 # MARKOV CHAIN
 
-transition.probabilities <- c(0, 1/3, 1/3, 1/3, 
+transition.probabilities <- c(1/3, 1/2, 1/12, 1/12, 
                               1/4, 1/4, 1/4, 1/4,
-                              1/4, 0, 1/4, 1/2,
+                              1/4, 1/8, 1/4, 3/8,
                               1/8, 1/8, 1/8, 5/8)
 Q <- matrix(transition.probabilities, 4, 4, byrow = TRUE)
 Q
 rowSums(Q)
+
+
 
 SIMS <- 10^4
 state.space <- paste0("State",1:4)

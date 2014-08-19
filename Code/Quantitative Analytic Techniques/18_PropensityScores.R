@@ -55,15 +55,18 @@ lm(Formula, data = sub)           # overall
 # Estimate the propensity model
 xvars <- xvars[-1]
 Formula <- as.formula(paste("dm1 ~ ", paste(xvars, collapse = " + ")))
-glm1 <- glm(Formula, data = sub, family = binomial)
+propensity_model <- glm(Formula, data = sub, family = binomial)
 
 # Matching & ATT estimate
-X <- glm1$fitted # propensity score
-Y <- sub$n.happy # outcome
-Tr  <- sub$dm1 # treatment
-match.out  <- Match(Y = Y, Tr = Tr, X = X, M = 1) # one-to-one matching with replacement (the "M=1" option).
-summary(match.out) # "Estimate" is the estimated ATT 
+  # outcome
+Y <- sub$n.happy
+  # treatment
+Tr <- sub$dm1 
+  # propensity scores
+pscore <- propensity_model$fitted 
+  # one-to-one matching
+matching  <- Match(Y = Y, Tr = Tr, X = pscore)
+summary(matching) # "Estimate" is the estimated ATT 
 
-# Check for balance
-mb <- MatchBalance(Formula, data = sub, match.out = match.out, nboots = 500) 
-
+# Check/test for balance
+mb <- MatchBalance(Formula, data = sub, match.out = matching, nboots = 500) 
