@@ -45,19 +45,21 @@ sub <- mutate(sub,
 
 
 # get means by year
-by.year <- aggregate(subset(sub, sel = -year), list(year = sub$year), mean, na.rm = T)
+by.year <- aggregate(subset(sub, sel = -year), 
+                     by = list(year = sub$year), 
+                     FUN = mean, na.rm = T)
 
 # interpolate for some missing years
   # add the extra years
-by.year[30:40, "year"] <- c(1979, 1981, 1992, 1995, seq(1997, 2009, 2))
+missing.years <- c(1979, 1981, 1992, 1995, seq(1997, 2009, 2))
+new.rows <- nrow(by.year) + 1:length(missing.years)
+by.year[new.rows, "year"] <- missing.years
 by.year <- arrange(by.year, year)
   # make a time series object by.year.ts and interpolate using na.approx
-by.year.ts <- ts(by.year)
-by.year.ts <- na.approx(by.year.ts)
+by.year.ts <- na.approx(ts(by.year))
 
 # calculate pct strong republican, percent fulltime, percent under 50 with BA
-by.year.ts <- as.data.frame(by.year.ts)
-by.year.ts <- mutate(by.year.ts, 
+by.year.ts <- mutate(as.data.frame(by.year.ts), 
                      repub = partyid6 + partyid7,
                      repub_pct = repub*100,
                      fulltime_pct = fulltime*100,

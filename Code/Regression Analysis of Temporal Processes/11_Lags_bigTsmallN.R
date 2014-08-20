@@ -55,21 +55,14 @@ by.year <- arrange(by.year, year)
 by.year.ts <- na.approx(ts(by.year))
 
 # only keep up 1983 to 1992
-
 by.year.ts <- by.year.ts[by.year.ts[,"year"] %in% 1983:1992, ]
 by.year.ts <-  ts(by.year.ts, start = 1983, end = 1992)
+
 plot(by.year.ts[,c("attend", "pray")], plot.type = "single", col = c("blue3", "red3"))
 legend("topright", bty = "n", lwd = 1, legend = c("attend", "pray"), col = c("blue3", "red3"))
 
 plot.dat <- meltMyTS(by.year.ts, time.var = "year")
-ggMyTS(plot.dat)
-
-# custom_xlabs is a function in the QMSS package that makes it quicker to
-# customize the appearance of the x-axis text / tick labels
-?custom_xlabs
-ggMyTS(plot.dat) + custom_xlabs(angle = 65)
-
-
+ggMyTS(plot.dat) + custom_xlabs(65)
 
 
 # correlations

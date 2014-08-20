@@ -30,8 +30,6 @@ library(plyr)
 load("GSS.RData")
 
 
-
-
 # Another worked example, with some AR(1) after trend ---------------------
 # _________________________________________________________________________
 
@@ -51,20 +49,20 @@ sub <- mutate(sub,
 
 # get means by year
 by.year <- aggregate(subset(sub, sel = c(marriedlt50, degreelt50)), 
-                     list(year = sub$year), mean, na.rm = T)
+                     by = list(year = sub$year), FUN = mean, na.rm = T)
 by.year
+
+
 
 # interpolate for some missing years
 # add the extra years
-by.year[30:32, "year"] <- c(1979, 1981, 1992)
+by.year[nrow(by.year) + 1:3, "year"] <- c(1979, 1981, 1992)
 by.year <- arrange(by.year, year)
 # make a time series object by.year.ts & interpolate with na.approx
-by.year.ts <- ts(by.year)
-by.year.ts <- na.approx(by.year.ts)
+by.year.ts <- na.approx(ts(by.year))
 
 # calculate pct under 50 married, under 50 with BA
-by.year.ts <- data.frame(by.year.ts)
-by.year.ts <- mutate(by.year.ts, 
+by.year.ts <- mutate(as.data.frame(by.year.ts), 
                      marriedlt50_pct = 100*marriedlt50,
                      degreelt50_pct = degreelt50*100)
 
@@ -74,19 +72,25 @@ by.year.ts <- ts(subset(by.year.ts, year <= 1992), start = 1972, end = 1992)
 # save the time series (we'll use it again in a different R document)
 save(by.year.ts, file = "married_degree_TS.RData")
 
+
 # make plots
 keep.vars <- c("year", "marriedlt50_pct", "degreelt50_pct")
 plot.dat <- meltMyTS(by.year.ts, time.var = "year", keep.vars = keep.vars)
 rotate_xlabs <- theme(axis.text.x = element_text(angle = 90))  
 
 g_Mar <- ggMyTS(plot.dat, "marriedlt50_pct") + ylab("Pct married (under 50 yrs old)")
-g_Mar + rotate_xlabs
+g_Mar
+
+# there's a function called custom_xlabs in the QMSS package that makes it
+# quicker to customize the appearance of the x-axis text / tick labels
+?custom_xlabs
+g_Mar + custom_xlabs(angle = 65)
 
 g_Deg <- ggMyTS(plot.dat, "degreelt50_pct") + ylab("Pct with BA (under 50 yrs old)")
-g_Deg + rotate_xlabs
+g_Deg + custom_xlabs(65)
 
 g_MarDeg <- ggMyTS(df = plot.dat, varlist = c("marriedlt50_pct", "degreelt50_pct"))
-g_MarDeg + rotate_xlabs 
+g_MarDeg + custom_xlabs(65)
 
 
 # correlations
