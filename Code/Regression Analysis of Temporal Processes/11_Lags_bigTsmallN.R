@@ -58,8 +58,10 @@ by.year.ts <- na.approx(ts(by.year))
 by.year.ts <- by.year.ts[by.year.ts[,"year"] %in% 1983:1992, ]
 by.year.ts <-  ts(by.year.ts, start = 1983, end = 1992)
 
-plot(by.year.ts[,c("attend", "pray")], plot.type = "single", col = c("blue3", "red3"))
-legend("topright", bty = "n", lwd = 1, legend = c("attend", "pray"), col = c("blue3", "red3"))
+plot(by.year.ts[,c("attend", "pray")], plot.type = "single", lwd = 2, 
+     col = c("blue3", "red3"), xlab = "year", ylab = "value")
+legend("topright", legend = c("attend", "pray"), 
+       bty = "n", lwd = 2, col = c("blue3", "red3"))
 
 plot.dat <- meltMyTS(by.year.ts, time.var = "year")
 ggMyTS(plot.dat) + custom_xlabs(65)
@@ -71,27 +73,36 @@ cor(by.year.ts, use = "complete")
 # simplest regression
 lm.pray <- lm(pray ~ attend, data = by.year.ts)
 summary(lm.pray)
-acf(lm.pray$resid, ci.type = "ma", col = "darkgreen", lwd = 2)
+acf(lm.pray$resid, ci.type = "ma", lwd = 2)
 dwtest(lm.pray)
 
 # add trend
 lm.pray2 <- update(lm.pray, ~ . + year)
 summary(lm.pray2)
-acf(lm.pray2$resid, ci.type = "ma", col = "darkgreen", lwd = 2)
+acf(lm.pray2$resid, ci.type = "ma", lwd = 2)
 dwtest(lm.pray2)
 
 
 # Finite distributed lag process 
   # install.packages("dynlm")
 library(dynlm)
-dynlm(pray ~ L(attend, 0:1) + year, data = by.year.ts)
-dynlm(pray ~ L(attend, 0:2) + year, data = by.year.ts)
-dynlm(pray ~ L(attend, 0:3) + year, data = by.year.ts)
+
+# run three models using (1) first lag (2) first and second lags (3) first,
+# second, and third lags of attend variable
+dynlmLags <- function(nlags) {
+  dynlm(pray ~ L(attend, 0:nlags) + year, data = by.year.ts)
+}
+dynlm.fits <- lapply(1:3, dynlmLags)
+names(dynlm.fits) <- paste("Lags:", c("0,1", "0,1,2", "0,1,2,3"))
+
+dynlm.fits[1]
+dynlm.fits[2]
+dynlm.fits[3]
 
 # The fading out of lags
-b <- coef(dynlm(pray ~ L(attend, 0:3) + year, data = by.year.ts))
+b <- coef(dynlm.fits[[3]])
 b
-b <- coefs[-c(1,6)]
+b <- b[-c(1,6)]
 b <- round(coefs,2)
 b
 coefs <- paste0("b_",0:3)
@@ -127,7 +138,7 @@ ldv.married <- dynlm(marriedlt50 ~ L(marriedlt50) + degreelt50 + year, data = by
 # look for autocorrelation
 gg_ac <- (qplot(x = 1973:1992, y = ldv.married$resid, geom = c("line","point")) 
           + xlab("year") + ylab("residual"))
-gg_ac + scale_x_continuous(breaks = seq(1973, 1992, 2)) + custom_xlabs(angle = 65)
+gg_ac + scale_x_continuous(breaks = seq(1973, 1992, 2)) + custom_xlabs(65)
 bgtest(ldv.married)
 
 
@@ -178,10 +189,13 @@ g_mar.overall <- ggplot(by.year.region, aes(x = year, y = marriedlt50_pct))
 g_mar.overall + stat_smooth(size = 2) 
 
 # plot regional trends with loess smoothing
-g_mar.region <- ggplot(by.year.region, aes(x = year, y = marriedlt50_pct, 
-                                           group = region, color = factor(region))) 
-g_mar.region + stat_smooth(se = F) 
-
+region.labs <- c("New England", "Middle Atlantic", "E.Nor.Central", 
+                   "W.Nor.Central", "South Atlantic", "E.Sou.Central",
+                   "W.Sou.Central", "Mountain", "Pacific")
+g_mar.region <- ggplot(by.year.region, 
+                       aes(x = year, y = marriedlt50_pct, group = region, 
+                           color = factor(region, labels = region.labs))) 
+g_mar.region + stat_smooth(se = F) + labs(color ='Region')     
 
 
 
