@@ -59,19 +59,17 @@ exclude <- with(sub, which(panelwave==1 & fulltime==1))
 sub2 <- sub[-exclude, ]
 
 
-
 # look for people who start now at Wave 2 or Wave 3 and drop all those extra
 # observations from the people who were fulltime employed at Wave 1
 sub2 <- arrange(sub2, idnum)
 sub2 <- ddply(sub2, "idnum", mutate, min.panel = min(panelwave))
-exclude <- with(sub2, which(min.panel %in% c(2,3) | panelwave==1))
-sub2 <- sub2[-exclude, ]
+sub2 <- subset(sub2, min.panel == 1 & panelwave != 1)
 
 
 # generate lag of fulltime
 library(Hmisc)
 sub2 <- ddply(sub2, "idnum", mutate, l.fulltime = Lag(fulltime))
-# sub2$l.fulltime <- lag(sub2$fulltime)
+
 
 # now take difference of current fulltime vs. previous fulltime score
 sub2$diff_ft_min_lft <- with(sub2, fulltime - l.fulltime)
@@ -80,19 +78,19 @@ sub2$diff_ft_min_lft <- with(sub2, fulltime - l.fulltime)
 # b/c that is like going from dead to undead, which is not allowed yet
 sub2$fulltime[sub2$diff_ft_min_lft == -1] <- NA
 
-# I change the years after someone first goes from being not-fulltime to 
-# fulltime to missing, since you can only get a score of 1 on fulltime once ... 
-# after that, it is like being dead. 
-sub2 <- ddply(sub2, "idnum", mutate, sumft = sum(fulltime, na.rm = T))
+# Change the years after someone first goes from being not-fulltime to 
+# fulltime to missing, since you can only get a score of 1 on fulltime once
+sub2 <- ddply(sub2, "idnum", mutate, sumft = sum(fulltime))
+
 
 # Keep sub2 as it is now and make a copy called called sub_1event. 
 sub_1event <- sub2
 sub_1event$fulltime[with(sub_1event, sumft == 2 & panelwave == 3)] <- NA
 
-# I will want to cut my sample according to age, but I need to know the maximum
-# age that same person is across the 3 Waves, so I generate a maximum age
-# variable – that way, I can exclude all observations from the same person, not
-# just when they over a certain age in a certain year.
+# Want to cut sample according to age, but need to know the maximum age that
+# same person is across the 3 Waves, so generate a maximum age variable – that
+# way, we can exclude all observations from the same person, not just when they
+# over a certain age in a certain year.
 sub_1event <- ddply(sub_1event, "idnum", mutate, maxage = max(age, na.rm = T))
 
 
@@ -103,11 +101,12 @@ summary(simple.model)
 
 ### A better model ###
 better.model <- glmer(fulltime ~ age + educ + sex + factor(race) + factor(panelwave) + (1 | idnum), 
-                      family = binomial, data = sub_1event)
+                      family = binomial, data = sub_1event, control = glmerControl(tolPwrss=1e-3))
 summary(better.model)
 
 ### Compare to regular logit ###
 # using lrm from rms package so we can use idnum as cluster variable 
+library(rms)
 logit.model <- lrm(fulltime ~ age + educ + sex + factor(race) + factor(panelwave), 
                    data = sub_1event, x = T, y = T)
 robcov(logit.model, cluster = sub_1event$idnum)
